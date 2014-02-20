@@ -10,10 +10,10 @@ exports.index = function(req, res) {
 
     UUID.find({ hostname: query }, function(err, docs) {
         if (err) {
-            res.json(400, err);
+            res.jsonp(400, err);
         }
         else {
-            res.json(200, docs);
+            res.jsonp(200, docs);
         }
     });
 };
@@ -29,7 +29,7 @@ exports.create = function(req, res) {
             uuid: newUUID
         }, function(err, docs) {
             if (err) {
-                res.json(400, err);
+                res.jsonp(400, err);
             }
             else {
                 if (docs === false) {
@@ -45,7 +45,7 @@ exports.create = function(req, res) {
         hostname: req.body.hostname
     }, function(err, docs) {
         if (err) {
-            res.json(400, err);
+            res.jsonp(400, err);
         }
         else {
             if(docs == false) {
@@ -55,19 +55,19 @@ exports.create = function(req, res) {
                     state: 'PENDING'
                 }, function(err, docs) {
                     if (err) {
-                        res.json(400, err);
+                        res.jsonp(400, err);
                     }
                     else {
-                        res.json(200, '{ state: PENDING }');
+                        res.jsonp(200, { state: "PENDING" });
                     }
                 })
             }
             else {
                 if (docs.state === 'CONFIRMED') {
-                    res.json(200, '{ state: CONFIRMED, uuid: ' + docs.uuid + ' }');
+                    res.jsonp(200, { state: docs.state, uuid: docs.uuid });
                 }
                 else {
-                    res.json(200, '{ state: ' + docs.state + ' }');
+                    res.jsonp(200, { state: docs.state });
                 }
             }
         }
