@@ -8,7 +8,9 @@ mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.datab
 
 app.configure( function() {
     app.use(express.logger());
+    app.use(express.compress());
     app.use(express.json({ strict: true }));
+    app.use(express.urlencoded());
 });
 
 app.resource('api/uuids', require('./routes/uuids'));
