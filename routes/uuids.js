@@ -18,7 +18,24 @@ exports.index = function(req, res) {
     });
 };
 
+exports.show = function(req, res) {
+
+    UUID.findOne({ uuid: req.params.uuid }, function(err, docs) {
+        if (err) {
+            res.jsonp(400, err);
+        }
+        else {
+            res.jsonp(200, docs);
+        }
+    });
+};
+
 exports.create = function(req, res) {
+
+    if ( ! req.body.hostname ) {
+        res.jsonp(400, { message: 'You must provide a hostname.' } );
+        return;
+    }
 
     var newUUID = '';
     
@@ -40,7 +57,6 @@ exports.create = function(req, res) {
     }
     while ( newUUID === false );
 
-    console.log(req.body.hostname);
     UUID.findOne({
         hostname: req.body.hostname
     }, function(err, docs) {
@@ -48,7 +64,7 @@ exports.create = function(req, res) {
             res.jsonp(400, err);
         }
         else {
-            if(docs == false) {
+            if(!docs) {
                 UUID.create({
                     hostname: req.body.hostname,
                     uuid: newUUID,
@@ -58,7 +74,7 @@ exports.create = function(req, res) {
                         res.jsonp(400, err);
                     }
                     else {
-                        res.jsonp(200, { state: "PENDING" });
+                        res.jsonp(200, { state: docs.state });
                     }
                 })
             }
@@ -72,4 +88,16 @@ exports.create = function(req, res) {
             }
         }
     })
+};
+
+exports.destroy = function(req, res) {
+
+    UUID.remove({ uuid: req.params.uuid }, function(err, docs) {
+        if (err) {
+            res.jsonp(400, err);
+        }
+        else {
+            res.jsonp(200, docs);
+        }
+    });
 };
