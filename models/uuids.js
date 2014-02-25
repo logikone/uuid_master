@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
 
 var UUIDSchema = mongoose.Schema({
-    hostname: String,
+    host_name: String,
+    host_uuid: String,
     uuid: String,
     state: String,
 });
