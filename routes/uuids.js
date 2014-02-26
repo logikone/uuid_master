@@ -4,11 +4,11 @@ var UUID = require('../models/uuids').UUID;
 exports.index = function(req, res) {
 
     var query = /./;
-    if (req.query.host_name) {
-        query = req.query.host_name
+    if (req.query.hostname) {
+        query = new RegExp(req.query.hostname.toLowerCase());
     }
 
-    UUID.find({ host_name: query }, function(err, docs) {
+    UUID.find({ host_name: query }, '-_id -__v', function(err, docs) {
         if (err) {
             res.jsonp(400, { status: 'ERROR', message: err });
         }
@@ -20,7 +20,9 @@ exports.index = function(req, res) {
 
 exports.show = function(req, res) {
 
-    UUID.findOne({ uuid: req.params.uuid }, function(err, docs) {
+    var masterUUID = req.params.uuid.toUpperCase();
+
+    UUID.findOne({ uuid: masterUUID }, function(err, docs) {
         if (err) {
             res.jsonp(400, { status: 'ERROR', message: err });
         }
@@ -37,6 +39,8 @@ exports.create = function(req, res) {
         return;
     }
 
+    var hostName = req.body.host_name.toLowerCase();
+    var hostUUID = req.body.host_uuid.toUpperCase();
     var newUUID = '';
     
     do {
@@ -58,8 +62,8 @@ exports.create = function(req, res) {
     while ( newUUID === false );
 
     UUID.findOne({
-        host_name: req.body.host_name,
-        host_uuid: req.body.host_uuid
+        host_name: hostName,
+        host_uuid: hostUUID
     }, function(err, docs) {
         if (err) {
             res.jsonp(400, err);
@@ -67,8 +71,8 @@ exports.create = function(req, res) {
         else {
             if (!docs) {
                 UUID.create({
-                    host_name: req.body.host_name,
-                    host_uuid: req.body.host_uuid,
+                    host_name: hostName,
+                    host_uuid: hostUUID,
                     uuid: newUUID,
                     state: 'PENDING'
                 }, function(err, docs) {
@@ -98,31 +102,40 @@ exports.create = function(req, res) {
 
 exports.update = function(req, res) {
 
-    //UUID.update(
-    //    {
-    //        uuid: req.params.uuid.toUpperCase()
-    //    },
-    //    {
-    //        host_name: req.body.host_name,
-    //        host_uuid: req.body.host_uuid
-    //    },
-    //    function(err, docs) {
-    //        if (err) {
-    //            res.jsonp({ status: 'ERROR', message: err });
-    //        }
-    //        else if (!docs) {
-    //            res.jsonp(400, { status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
-    //        }
-    //        else {
-    //            UUID.remove({ uuid: req.body.old_uuid.toUpperCase() },
-    //                function(err, docs) {
-    //                }
-    //            );
-    //        }
-    //    }
-    //)
-    
-    res.jsonp({ status: 'OK' });
+    var masterUUID = req.params.uuid.toUpperCase();
+    var hostUUID   = req.body.host_uuid.toUpperCase();
+    var hostName   = req.body.host_name.toLowerCase();
+    var delUUID    = req.body.del_uuid.toUpperCase();
+
+    UUID.update(
+        {
+            uuid: masterUUID
+        },
+        {
+            host_name: hostName,
+            host_uuid: hostUUID
+        },
+        function(err, docs) {
+            if (err) {
+                res.jsonp({ status: 'ERROR', message: err });
+            }
+            else if (!docs) {
+                res.jsonp(400, { status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
+            }
+            else {
+                UUID.remove({ uuid: delUUID },
+                    function(err, docs) {
+                        if (err) {
+                            res.jsonp(400, { status: 'ERROR', message: err });
+                        }
+                        else {
+                            res.jsonp(200, { status: 'OK', message: masterUUID + ' updated. ' + delUUID + ' deleted.' });
+                        }
+                    }
+                );
+            }
+        }
+    )
 };
 
 exports.edit = function(req, res) {
@@ -132,7 +145,8 @@ exports.edit = function(req, res) {
         return;
     }
 
-    var state = req.query.state.toUpperCase();
+    var state        = req.query.state.toUpperCase();
+    var masterUUID   = req.params.uuid.toUpperCase();
 
     if (!/^(CONFIRMED|DENIED)$/.test(state)) {
         res.jsonp(400, { status: 'ERROR', message: 'Unknown state: ' + state + '. Must be one of (CONFIRMED|DENIED)'});
@@ -141,7 +155,7 @@ exports.edit = function(req, res) {
 
     UUID.update(
         {
-            uuid: req.params.uuid.toUpperCase()
+            uuid: masterUUID
         },
         {
             state: state
@@ -154,7 +168,7 @@ exports.edit = function(req, res) {
                 res.jsonp({ status: 'ERROR', message: 'UUID not found' });
             }
             else {
-                res.jsonp({ status: 'OK', uuid: req.params.uuid.toUpperCase(), message: 'State is now ' + state });
+                res.jsonp({ status: 'OK', uuid: masterUUID, message: 'State is now ' + state });
             }
         }
     );
@@ -162,16 +176,18 @@ exports.edit = function(req, res) {
 
 exports.destroy = function(req, res) {
 
-    UUID.remove({ uuid: req.params.uuid.toUpperCase() }, function(err, docs) {
+    var masterUUID = req.params.uuid.toUpperCase();
+
+    UUID.remove({ uuid: masterUUID }, function(err, docs) {
         if (err) {
             res.jsonp(400, err);
         }
         else {
             if (!docs) {
-                res.jsonp(400, { status: 'ERROR', messagge: req.params.uuid + ' does not exist' });
+                res.jsonp(400, { status: 'ERROR', messagge: masterUUID + ' does not exist' });
             }
             else {
-                res.jsonp(200, { status: 'OK', message: req.params.uuid + ' deleted' });
+                res.jsonp(200, { status: 'OK', message: masterUUID + ' deleted' });
             }
         }
     });
