@@ -13,6 +13,7 @@ app.configure( function() {
     app.use(express.urlencoded());
 });
 
+app.use('/', express.static(__dirname + '/public'));
 app.resource('api/uuids', require('./routes/uuids'));
 
 app.listen(3000);

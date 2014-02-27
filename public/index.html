@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>UUID Master</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.css">
+</head>
+<body>
+    <script type="text/x-handlebars" id="uuids">
+        <div class="container">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">UUID Master</a>
+                </div>
+            </nav>
+
+            <table class="table table-hover table-condensed">
+                <thead>
+                    <tr>
+                        <th>Hostname</th>
+                        <th>UUID</th>
+                        <th>Host UUID</th>
+                        <th>State</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {{#each}}
+                <tr>
+                    <td>{{#link-to 'uuid' id}}{{host_name}}{{/link-to}}</td>
+                    <td>{{id}}</td>
+                    <td>{{host_uuid}}</td>
+                    <td>{{state}}</td>
+                </tr>
+                {{/each}}
+            </table>
+            {{output}}
+        </div>
+    </script>
+
+    <script type="text/x-handlebars" id="uuid">
+        {{host_name}}
+    </script>
+  
+    <script src="js/libs/jquery-1.10.2.js"></script>
+    <script src="js/libs/handlebars-1.1.2.js"></script>
+    <script src="js/libs/ember-1.4.0.js"></script>
+    <script src="js/libs/ember-data.js"></script>
+    <script src="js/app.js"></script>
+    <!-- to activate the test runner, add the "?test" query string parameter -->
+    <script src="tests/runner.js"></script>
+</body>
+</html>
