@@ -22,12 +22,12 @@ exports.show = function(req, res) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
-    UUID.findOne({ uuid: masterUUID }, function(err, docs) {
+    UUID.findOne({ id: masterUUID }, '-_id -__v', function(err, docs) {
         if (err) {
             res.jsonp(400, { status: 'ERROR', message: err });
         }
         else {
-            res.jsonp(200, { status: 'OK', uuid: docs.uuid });
+            res.jsonp(200, { 'uuid': docs });
         }
     });
 };
@@ -47,7 +47,7 @@ exports.create = function(req, res) {
         newUUID = genUUID().toUpperCase();
     
         UUID.find({
-            uuid: newUUID
+            id: newUUID
         }, function(err, docs) {
             if (err) {
                 res.jsonp(400, { status: 'ERROR', message: err });
@@ -73,7 +73,7 @@ exports.create = function(req, res) {
                 UUID.create({
                     host_name: hostName,
                     host_uuid: hostUUID,
-                    uuid: newUUID,
+                    id: newUUID,
                     state: 'PENDING'
                 }, function(err, docs) {
                     console.log(docs);
@@ -90,7 +90,7 @@ exports.create = function(req, res) {
             }
             else {
                 if (docs.state === 'CONFIRMED') {
-                    res.jsonp(200, { status: 'OK', state: docs.state, uuid: docs.uuid });
+                    res.jsonp(200, { status: 'OK', state: docs.state, uuid: docs.id });
                 }
                 else {
                     res.jsonp(200, { status: 'OK', state: docs.state });
@@ -109,7 +109,7 @@ exports.update = function(req, res) {
 
     UUID.update(
         {
-            uuid: masterUUID
+            id: masterUUID
         },
         {
             host_name: hostName,
@@ -123,7 +123,7 @@ exports.update = function(req, res) {
                 res.jsonp(400, { status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
             }
             else {
-                UUID.remove({ uuid: delUUID },
+                UUID.remove({ id: delUUID },
                     function(err, docs) {
                         if (err) {
                             res.jsonp(400, { status: 'ERROR', message: err });
@@ -155,7 +155,7 @@ exports.edit = function(req, res) {
 
     UUID.update(
         {
-            uuid: masterUUID
+            id: masterUUID
         },
         {
             state: state
@@ -178,7 +178,7 @@ exports.destroy = function(req, res) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
-    UUID.remove({ uuid: masterUUID }, function(err, docs) {
+    UUID.remove({ id: masterUUID }, function(err, docs) {
         if (err) {
             res.jsonp(400, err);
         }

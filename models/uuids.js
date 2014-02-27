@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var UUIDSchema = mongoose.Schema({
     host_name: String,
     host_uuid: String,
-    uuid: String,
+    id: String,
     state: String,
 });
 
