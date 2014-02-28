@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/bootstrap-theme.css">
 </head>
 <body>
-    <script type="text/x-handlebars" id="uuids">
+    <script type="text/x-handlebars">
         <div class="container">
             <nav class="navbar navbar-default" role="navigation">
                 <div class="navbar-header">
@@ -29,19 +29,15 @@
                 </thead>
                 {{#each}}
                 <tr>
-                    <td>{{#link-to 'uuid' id}}{{host_name}}{{/link-to}}</td>
+                    <td>{{host_name}}</td>
                     <td>{{id}}</td>
                     <td>{{host_uuid}}</td>
                     <td>{{state}}</td>
+                    <td><button type="button" class="btn btn-danger btn-xs" {{action 'delete' id}}>DELETE</button></td>
                 </tr>
                 {{/each}}
             </table>
-            {{output}}
         </div>
-    </script>
-
-    <script type="text/x-handlebars" id="uuid">
-        {{host_name}}
     </script>
   
     <script src="js/libs/jquery-1.10.2.js"></script>
