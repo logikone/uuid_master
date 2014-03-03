@@ -17,6 +17,7 @@
                 </div>
             </nav>
 
+            <form role="form" {{action "updateUuids" this on="submit"}}>
             <table class="table table-hover table-condensed">
                 <thead>
                     <tr>
@@ -33,10 +34,19 @@
                     <td>{{id}}</td>
                     <td>{{host_uuid}}</td>
                     <td>{{state}}</td>
-                    <td><button type="button" class="btn btn-danger btn-xs" {{action 'delete' id}}>DELETE</button></td>
-                </tr>
+                    <td>{{input type="checkbox" name="id" value="{{id}}"}}</td>
+                    </tr>
                 {{/each}}
             </table>
+            <div class="col-md-4 col-md-offset-8 text-right">
+                <select class="form control">
+                    <option value="confirm">Confirm</option>
+                    <option value="deny">Deny</options>
+                    <option value="delete">Delete</options>
+                </select>
+                <button class="btn btn-primary btn-xs" type="submit">Submit</button>
+            </form>
+            </div>
         </div>
     </script>
   

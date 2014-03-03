@@ -12,7 +12,7 @@ App.Uuid = DS.Model.extend({
 
 App.UuidAdapter = DS.RESTAdapter.extend({
     namespace: 'api',
-    host: 'http://appdb01.qa0.mozyops.com:3000'
+    host: 'http://localhost:3000'
 });
 
 App.ApplicationRoute = Ember.Route.extend({
@@ -21,8 +21,12 @@ App.ApplicationRoute = Ember.Route.extend({
     },
     actions: {
         delete: function(id) {
-            var uuid = this.store.find('uuid', id);
-            uuid.destroyRecord();
-        }
+            var uuid = this.store.getById('uuid', id);
+			uuid.destroyRecord();
+        },
+		updateUuids: function(content) {
+			console.log(this);
+			console.log(content);
+		}
     }
 });
