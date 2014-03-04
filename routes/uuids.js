@@ -13,7 +13,7 @@ exports.index = function(req, res) {
             res.jsonp(400, { status: 'ERROR', message: err });
         }
         else {
-            res.jsonp(200, { 'uuids': docs });
+            res.jsonp(200, { uuids: docs, meta: { count: docs.length } });
         }
     });
 };
