@@ -3,17 +3,54 @@ var UUID = require('../models/uuids').UUID;
 
 exports.index = function(req, res) {
 
-    var query = /./;
+    // Set some defaults
+    var hostname = /./;
+    var hostuuid = /./;
+    var state    = /./;
+    var page     = 1;
+    var limit    = 0;
+
+    // Override defaults if params are provided
     if (req.query.hostname) {
-        query = new RegExp(req.query.hostname.toLowerCase());
+        hostname = new RegExp(req.query.hostname.toLowerCase());
+    }
+    if (req.query.state) {
+        state = new RegExp(req.query.state.toUpperCase());
+    }
+    if (req.query.page) {
+        page = req.query.page
+    }
+    if (req.query.limit) {
+        limit = req.query.limit
     }
 
-    UUID.find({ host_name: query }, '-_id -__v', function(err, docs) {
+    // Set number of docs to skip based off current page
+    var skip = limit * (page - 1);
+
+    UUID.find({ host_name: hostname, state: state, host_uuid: hostuuid }, '-_id -__v', { skip: skip, limit: limit }, function(err, docs) {
         if (err) {
             res.jsonp(400, { status: 'ERROR', message: err });
         }
         else {
-            res.jsonp(200, { uuids: docs, meta: { count: docs.length } });
+            UUID.count({ host_name: hostname, state: state, host_uuid: hostuuid }).count( function(err, count) {
+
+                var total_pages = Math.round(count / limit);
+                if (total_pages === Infinity) {
+                    total_pages = 1
+                }
+
+                res.jsonp(200, {
+                    uuids: docs,
+                    meta: {
+                        count: docs.length,
+                        pagination: {
+                            total_pages: total_pages,
+                            current_page: page,
+                            total_count: count
+                        }
+                    }
+                });
+            });
         }
     });
 };
@@ -41,8 +78,9 @@ exports.create = function(req, res) {
 
     var hostName = req.body.host_name.toLowerCase();
     var hostUUID = req.body.host_uuid.toUpperCase();
-    var newUUID = '';
-    
+    var newUUID  = '';
+    var now      = new Date();
+
     do {
         newUUID = genUUID().toUpperCase();
     
@@ -74,9 +112,9 @@ exports.create = function(req, res) {
                     host_name: hostName,
                     host_uuid: hostUUID,
                     id: newUUID,
+                    last_request: now,
                     state: 'PENDING'
                 }, function(err, docs) {
-                    console.log(docs);
                     if (err) {
                         res.jsonp(400, { status: 'ERROR', message: err });
                     }
@@ -90,10 +128,24 @@ exports.create = function(req, res) {
             }
             else {
                 if (docs.state === 'CONFIRMED') {
-                    res.jsonp(200, { status: 'OK', state: docs.state, uuid: docs.id });
+                    UUID.update({ id: docs.id }, { last_request: now }, function(err, doc) {
+                        if (err) {
+                            res.json(400, { status: 'ERROR', message: err });
+                        }
+                        else {
+                            res.jsonp(200, { status: 'OK', state: docs.state, uuid: docs.id });
+                        }
+                    });
                 }
                 else {
-                    res.jsonp(200, { status: 'OK', state: docs.state });
+                    UUID.update({ id: docs.id }, { last_request: now }, function(err, doc) {
+                        if (err) {
+                            res.json(400, { status: 'ERROR', message: err });
+                        }
+                        else {
+                            res.jsonp(200, { status: 'OK', state: docs.state });
+                        }
+                    });
                 }
             }
         }
