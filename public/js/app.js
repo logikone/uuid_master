@@ -32,8 +32,7 @@ App.Uuid.reopenClass({
 });
 
 App.UuidAdapter = DS.RESTAdapter.extend({
-    namespace: 'api',
-    host: 'http://appdb01.qa0.mozyops.com:3000'
+    namespace: 'api'
 });
 
 App.ApplicationController = Ember.Controller.extend({
