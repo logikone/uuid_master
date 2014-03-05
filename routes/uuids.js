@@ -1,7 +1,7 @@
 var genUUID = require('../lib/uuid');
 var UUID = require('../models/uuids').UUID;
 
-exports.index = function(req, res) {
+exports.index = function(req) {
 
     // Set some defaults
     var hostname = /./;
@@ -29,7 +29,7 @@ exports.index = function(req, res) {
 
     UUID.find({ host_name: hostname, state: state, host_uuid: hostuuid }, '-_id -__v', { skip: skip, limit: limit }, function(err, docs) {
         if (err) {
-            res.jsonp(400, { status: 'ERROR', message: err });
+            req.io.respond({ status: 'ERROR', message: err });
         }
         else {
             UUID.count({ host_name: hostname, state: state, host_uuid: hostuuid }).count( function(err, count) {
@@ -39,7 +39,7 @@ exports.index = function(req, res) {
                     total_pages = 1
                 }
 
-                res.jsonp(200, {
+                req.io.respond({
                     uuids: docs,
                     meta: {
                         count: docs.length,
@@ -55,24 +55,24 @@ exports.index = function(req, res) {
     });
 };
 
-exports.show = function(req, res) {
+exports.show = function(req) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
     UUID.findOne({ id: masterUUID }, '-_id -__v', function(err, docs) {
         if (err) {
-            res.jsonp(400, { status: 'ERROR', message: err });
+            req.io.respond({ status: 'ERROR', message: err });
         }
         else {
-            res.jsonp(200, { 'uuid': docs });
+            req.io.respond({ 'uuid': docs });
         }
     });
 };
 
-exports.create = function(req, res) {
+exports.create = function(req) {
 
     if ( ! req.body.host_name || ! req.body.host_uuid ) {
-        res.jsonp(400, { message: 'You must provide both a host_name and host_uuid.' } );
+        req.io.respond({ message: 'You must provide both a host_name and host_uuid.' } );
         return;
     }
 
@@ -88,7 +88,7 @@ exports.create = function(req, res) {
             id: newUUID
         }, function(err, docs) {
             if (err) {
-                res.jsonp(400, { status: 'ERROR', message: err });
+                req.io.respond({ status: 'ERROR', message: err });
             }
             else {
                 if (docs === false) {
@@ -104,7 +104,7 @@ exports.create = function(req, res) {
         host_uuid: hostUUID
     }, function(err, docs) {
         if (err) {
-            res.jsonp(400, err);
+            req.io.respond(err);
         }
         else {
             if (!docs) {
@@ -116,13 +116,13 @@ exports.create = function(req, res) {
                     state: 'PENDING'
                 }, function(err, docs) {
                     if (err) {
-                        res.jsonp(400, { status: 'ERROR', message: err });
+                        req.io.respond({ status: 'ERROR', message: err });
                     }
                     else if (!docs) {
-                        res.jsonp(400, { status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
+                        req.io.respond({ status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
                     }
                     else {
-                        res.jsonp(200, { status: 'OK', state: docs.state });
+                        req.io.respond({ status: 'OK', state: docs.state });
                     }
                 })
             }
@@ -130,20 +130,20 @@ exports.create = function(req, res) {
                 if (docs.state === 'CONFIRMED') {
                     UUID.update({ id: docs.id }, { last_request: now }, function(err, doc) {
                         if (err) {
-                            res.json(400, { status: 'ERROR', message: err });
+                            req.io.respond({ status: 'ERROR', message: err });
                         }
                         else {
-                            res.jsonp(200, { status: 'OK', state: docs.state, uuid: docs.id });
+                            req.io.respond({ status: 'OK', state: docs.state, uuid: docs.id });
                         }
                     });
                 }
                 else {
                     UUID.update({ id: docs.id }, { last_request: now }, function(err, doc) {
                         if (err) {
-                            res.json(400, { status: 'ERROR', message: err });
+                            req.io.respond({ status: 'ERROR', message: err });
                         }
                         else {
-                            res.jsonp(200, { status: 'OK', state: docs.state });
+                            req.io.respond({ status: 'OK', state: docs.state });
                         }
                     });
                 }
@@ -169,19 +169,19 @@ exports.update = function(req, res) {
         },
         function(err, docs) {
             if (err) {
-                res.jsonp({ status: 'ERROR', message: err });
+                req.io.respond({ status: 'ERROR', message: err });
             }
             else if (!docs) {
-                res.jsonp(400, { status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
+                req.io.respond({ status: 'ERROR', message: 'Something went wrong, UUID request did not get stored in database' });
             }
             else {
                 UUID.remove({ id: delUUID },
                     function(err, docs) {
                         if (err) {
-                            res.jsonp(400, { status: 'ERROR', message: err });
+                            req.io.respond({ status: 'ERROR', message: err });
                         }
                         else {
-                            res.jsonp(200, { status: 'OK', message: masterUUID + ' updated. ' + delUUID + ' deleted.' });
+                            req.io.respond({ status: 'OK', message: masterUUID + ' updated. ' + delUUID + ' deleted.' });
                         }
                     }
                 );
@@ -193,7 +193,7 @@ exports.update = function(req, res) {
 exports.edit = function(req, res) {
 
     if (!req.query.state) {
-        res.jsonp(400, { status: 'ERROR', message: 'Must specify target state' });
+        req.io.respond({ status: 'ERROR', message: 'Must specify target state' });
         return;
     }
 
@@ -201,7 +201,7 @@ exports.edit = function(req, res) {
     var masterUUID   = req.params.uuid.toUpperCase();
 
     if (!/^(CONFIRMED|DENIED)$/.test(state)) {
-        res.jsonp(400, { status: 'ERROR', message: 'Unknown state: ' + state + '. Must be one of (CONFIRMED|DENIED)'});
+        req.io.respond({ status: 'ERROR', message: 'Unknown state: ' + state + '. Must be one of (CONFIRMED|DENIED)'});
         return;
     }
 
@@ -214,13 +214,13 @@ exports.edit = function(req, res) {
         },
         function (err, docs) {
             if (err) {
-                res.jsonp({ status: 'ERROR', message: err });
+                req.io.respond({ status: 'ERROR', message: err });
             }
             else if (!docs) {
-                res.jsonp({ status: 'ERROR', message: 'UUID not found' });
+                req.io.respond({ status: 'ERROR', message: 'UUID not found' });
             }
             else {
-                res.jsonp({ status: 'OK', uuid: masterUUID, message: 'State is now ' + state });
+                req.io.respond({ status: 'OK', uuid: masterUUID, message: 'State is now ' + state });
             }
         }
     );
@@ -232,14 +232,14 @@ exports.destroy = function(req, res) {
 
     UUID.remove({ id: masterUUID }, function(err, docs) {
         if (err) {
-            res.jsonp(400, err);
+            req.io.respond(err);
         }
         else {
             if (!docs) {
-                res.jsonp(400, { status: 'ERROR', messagge: masterUUID + ' does not exist' });
+                req.io.respond({ status: 'ERROR', messagge: masterUUID + ' does not exist' });
             }
             else {
-                res.jsonp(200, { status: 'OK', message: masterUUID + ' deleted' });
+                req.io.respond({ status: 'OK', message: masterUUID + ' deleted' });
             }
         }
     });
