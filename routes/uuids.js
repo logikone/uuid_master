@@ -122,17 +122,27 @@ exports.create = function(req, res) {
                     if (err) {
                         res.json(400, { message: err });
                     }
-                    else if (!docs) {
+                    else if (!doc) {
                         res.json(400, { message: 'Something went wrong, UUID request did not get stored in database' });
                     }
                     else {
-                        res.json(200, { uuids: doc });
+                        res.json(200,
+                            {
+                                uuid: {
+                                    id: doc.id,
+                                    host_name: doc.host_name,
+                                    host_uuid: doc.host_uuid,
+                                    state: doc.state,
+                                    last_request: doc.last_request
+                                }
+                            }
+                        );
                     }
                 })
             }
             else {
-                if (docs.state === 'CONFIRMED') {
-                    UUID.update({ id: doc.id }, { last_request: now }, function(err, doc) {
+                if (doc.state === 'CONFIRMED') {
+                    UUID.findOneAndUpdate({ id: doc.id }, { last_request: now }, { new: true, select: '-_id -__v' }, function(err, doc) {
                         if (err) {
                             res.json(400, { message: err });
                         }
@@ -142,7 +152,7 @@ exports.create = function(req, res) {
                     });
                 }
                 else {
-                    UUID.update({ id: docs.id }, { last_request: now }, function(err, doc) {
+                    UUID.findOneAndUpdate({ id: doc.id }, { last_request: now }, { new: true, select: '-_id -__v' }, function(err, doc) {
                         if (err) {
                             res.json(400, { message: err });
                         }
@@ -187,7 +197,7 @@ exports.update = function(req, res) {
         }
         else {
             if (!doc) {
-                res.json(400, { message: 'Something went wrong. Database query returned no docs.' });
+                res.json(400, { message: 'Something went wrong. Database query returned no document.' });
             }
             else {
                 res.json(200, { uuid: doc });
@@ -200,12 +210,12 @@ exports.destroy = function(req, res) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
-    UUID.remove({ id: masterUUID }, function(err, docs) {
+    UUID.remove({ id: masterUUID }, function(err, doc) {
         if (err) {
             res.json(400, { message: err });
         }
         else {
-            if (!docs) {
+            if (!doc) {
                 res.json(400, { messagge: masterUUID + ' does not exist' });
             }
             else {
