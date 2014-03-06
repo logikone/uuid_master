@@ -10,18 +10,36 @@ exports.index = function(req) {
     var page     = 1;
     var limit    = 0;
 
+
     // Override defaults if params are provided
-    if (req.query.hostname) {
-        hostname = new RegExp(req.query.hostname.toLowerCase());
+    if (req.data) {
+        if (req.data.hostname) {
+            hostname = new RegExp(req.data.hostname.toLowerCase());
+        }
+        if (req.data.state) {
+            state = new RegExp(req.data.state.toUpperCase());
+        }
+        if (req.data.page) {
+            page = req.data.page
+        }
+
+        if (req.data.limit) {
+            limit = req.data.limit
+        }
     }
-    if (req.query.state) {
-        state = new RegExp(req.query.state.toUpperCase());
-    }
-    if (req.query.page) {
-        page = req.query.page
-    }
-    if (req.query.limit) {
-        limit = req.query.limit
+    if (req.query) {
+        if (req.query.hostname) {
+            hostname = new RegExp(req.query.hostname.toLowerCase());
+        }
+        if (req.query.state) {
+            state = new RegExp(req.query.state.toUpperCase());
+        }
+        if (req.query.page) {
+            page = req.query.page
+        }
+        if (req.query.limit) {
+            limit = req.query.limit
+        }
     }
 
     // Set number of docs to skip based off current page
@@ -39,7 +57,7 @@ exports.index = function(req) {
                     total_pages = 1
                 }
 
-                req.io.respond({
+                var response = {
                     uuids: docs,
                     meta: {
                         count: docs.length,
@@ -49,7 +67,9 @@ exports.index = function(req) {
                             total_count: count
                         }
                     }
-                });
+                }
+
+                req.io.respond(response);
             });
         }
     });
@@ -152,7 +172,7 @@ exports.create = function(req) {
     })
 };
 
-exports.update = function(req, res) {
+exports.update = function(req) {
 
     var masterUUID = req.params.uuid.toUpperCase();
     var hostUUID   = req.body.host_uuid.toUpperCase();
@@ -190,7 +210,7 @@ exports.update = function(req, res) {
     )
 };
 
-exports.edit = function(req, res) {
+exports.edit = function(req) {
 
     if (!req.query.state) {
         req.io.respond({ status: 'ERROR', message: 'Must specify target state' });
@@ -221,12 +241,13 @@ exports.edit = function(req, res) {
             }
             else {
                 req.io.respond({ status: 'OK', uuid: masterUUID, message: 'State is now ' + state });
+                req.io.broadcast('uuids:index', { status: 'OK', uuid: masterUUID, message: 'State is now ' + state });
             }
         }
     );
 };
 
-exports.destroy = function(req, res) {
+exports.destroy = function(req) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
