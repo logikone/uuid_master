@@ -33,7 +33,7 @@ exports.index = function(req, res) {
         else {
             UUID.count({ host_name: hostname, state: state, host_uuid: hostuuid }).count( function(err, count) {
 
-                var total_pages = Math.round(count / limit);
+                var total_pages = Math.ceil(count / limit);
                 if (total_pages === Infinity) {
                     total_pages = 1
                 }
