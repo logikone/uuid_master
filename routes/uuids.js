@@ -216,7 +216,7 @@ exports.destroy = function(req, res) {
         }
         else {
             if (!doc) {
-                res.json(400, { messagge: masterUUID + ' does not exist' });
+                res.json(400, { message: masterUUID + ' does not exist' });
             }
             else {
                 res.json(200);
