@@ -2,18 +2,19 @@ var config = require('config'),
     express = require('express'),
     mongoose = require('mongoose'),
     uuids = require('./routes/uuids'),
+    middleware = require('./lib/middleware'),
     app = express();
 
 mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.database);
 
-app.configure( function() {
-    app.use(express.logger());
-    app.use(express.compress());
-    app.use(express.json({ strict: true }));
-});
+app.use(express.logger({ immediate: true, format: 'dev' }));
+app.use(express.compress());
+app.use('/', express.static(__dirname + '/public'));
+//app.use(middleware.checkHeaders);
+app.use(express.json({ strict: true }));
+app.use(middleware.jsonParseFailure);
 
 // HTTP Routes
-app.use('/', express.static(__dirname + '/public'));
 app.get('/api/v1/uuids', uuids.index);
 app.get('/api/v1/uuids/:uuid', uuids.show);
 app.post('/api/v1/uuids', uuids.create);
