@@ -4,7 +4,7 @@
         <thead>
             <tr>
                 <th ng-repeat="header in headers">
-                    <sort-by onsort="onSort" sortdir="filterCriteria.sortDir" sortedby="filterCriteria.sortedBy" sortvalue="{{header}}">{{header}}</sort-by>
+                    <sort-by onsort="onSort" sortdir="filterCriteria.sortDir" sortedby="filterCriteria.sortedBy" sortvalue="{{header.value}}">{{header.name}}</sort-by>
                 </th>
             </tr>
         </thead>
@@ -14,6 +14,7 @@
             <td><input type="text"></td>
             <td><input type="text"></td>
             <td><input type="text"></td>
+            <td></td>
         </tr>
         <tr ng-repeat="uuid in uuids.uuids">
             <td>{{uuid.host_name}}</td>
