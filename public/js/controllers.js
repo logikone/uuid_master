@@ -5,8 +5,9 @@
 var uuidControllers = angular.module('uuidMaster.controllers', []);
 
 uuidControllers.controller('uuidsCtrl', [ '$scope', 'Uuid', function($scope, Uuid) {
-    var uuidReq = Uuid.findAll();
-    $scope.uuids = uuidReq; 
+    $scope.uuids = Uuid.findAll();
+    $scope.actions = [ 'CONFIRM', 'DENY', 'REVOKE', 'DELETE' ];
+    $scope.states = [ 'PENDING', 'CONFIRMED', 'DENIED', 'REVOKED' ];
     $scope.headers = [
         {
             name :'Hostname',
@@ -33,9 +34,13 @@ uuidControllers.controller('uuidsCtrl', [ '$scope', 'Uuid', function($scope, Uui
             value: ''
         }
     ];
+    $scope.updateCriteria = {};
     $scope.filterCriteria = {
-        pageNumber: 1,
-        sortDir: 1,
-        sortedBy: 'host_name'
-    }
+        page: 1,
+        limit: 20
+    };
+    $scope.selectPage = function (page) {
+        $scope.filterCriteria.page = page;
+        $scope.uuids = Uuid.findAll($scope.filterCriteria);
+    };
 }]);
