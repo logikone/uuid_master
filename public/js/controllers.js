@@ -5,8 +5,26 @@
 var uuidControllers = angular.module('uuidMaster.controllers', []);
 
 uuidControllers.controller('uuidsCtrl', [ '$scope', 'Uuid', function($scope, Uuid) {
-    $scope.uuids = Uuid.findAll();
-    $scope.actions = [ 'CONFIRM', 'DENY', 'REVOKE', 'DELETE' ];
+    $scope.limit = 20;
+    $scope.uuids = Uuid.get({ limit: $scope.limit });
+    $scope.actions = [
+        {
+            name: 'CONFIRM',
+            value: 'CONFIRMED'
+        },
+        {
+            name: 'DENY',
+            value: 'DENIED'
+        },
+        {
+            name: 'REVOKE',
+            value: 'REVOKED'
+        },
+        {
+            name: 'DELETE',
+            value: 'DELETED'
+        }
+    ];
     $scope.states = [ 'PENDING', 'CONFIRMED', 'DENIED', 'REVOKED' ];
     $scope.headers = [
         {
@@ -36,11 +54,35 @@ uuidControllers.controller('uuidsCtrl', [ '$scope', 'Uuid', function($scope, Uui
     ];
     $scope.updateCriteria = {};
     $scope.filterCriteria = {
-        page: 1,
         limit: 20
+    };
+    $scope.onCheckedChange = function(checked) {
+        angular.forEach($scope.uuids.uuids, function(uuid) {
+            uuid.checked = checked;
+        });
+    };
+    $scope.submit = function() {
+
+        var uuids  = $scope.uuids.uuids;
+        var action = $scope.updateCriteria.action;
+
+        angular.forEach(uuids, function(uuid) {
+
+            if (uuid.checked)  {
+
+                if (action.name === 'DELETE') {
+                    remove(uuid);
+                }
+                else {
+                    Uuid.update({ id: uuid.id }, { state: action.value }, function(res) {
+                        uuid.state = res.uuid.state;
+                    });
+                }
+            }
+        });
     };
     $scope.selectPage = function (page) {
         $scope.filterCriteria.page = page;
-        $scope.uuids = Uuid.findAll($scope.filterCriteria);
+        $scope.uuids = Uuid.get($scope.filterCriteria);
     };
 }]);

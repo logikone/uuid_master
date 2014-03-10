@@ -6,13 +6,9 @@ var uuidServices = angular.module('uuidMaster.services', ['ngResource']).
 
 uuidServices.factory('Uuid', ['$resource',
     function($resource) {
-        return $resource('api/v1/uuids', {}, {
-            findAll: { 
-                method: 'GET',
-                params: {
-                    limit: '20',
-                    page: '1'
-                }
+        return $resource('api/v1/uuids/:id', {}, {
+            update: {
+                method: 'PUT'
             }
         });
     }

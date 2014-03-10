@@ -1,5 +1,18 @@
 <div class="container">
-    <form>
+    <div class="row">
+        <div class="col-md-2 col-md-offset-10 text-right">
+            <select class="form-control" ng-model="limit">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+                <option value="1000">1000</option>
+            </select>
+        </div>
+    </div>
+    <form ng-submit="submit()" id="uuidsForm">
     <table class="table table-hover table-condensed">
         <thead>
             <tr>
@@ -21,7 +34,9 @@
                     <option value=""> </option>
                 </select>
             </td>
-            <td></td>
+            <td>
+                <input type="checkbox" ng-model="checked" ng-change="onCheckedChange(checked)">
+            </td>
         </tr>
         <tr ng-repeat="uuid in uuids.uuids">
             <td>{{uuid.host_name}}</td>
@@ -30,7 +45,7 @@
             <td>{{uuid.last_request}}</td>
             <td>{{uuid.state}}</td>
             <td>
-                <input type="checkbox" name="uuid">
+                <input type="checkbox" ng-model="uuid.checked">
             </td>
         </tr>
     </table>
@@ -42,7 +57,7 @@
         <pagination boundary-links="true" max-size="5" total-items="uuids.meta.pagination.total_count" items-per-page="filterCriteria.limit" page="uuids.meta.pagination.current_page" on-select-page="selectPage(page)" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
     </div>
     <div class="col-md-4 col-md-offset-4 text-right">
-        <select class="form-control input-sm" ng-model="updateCriteria.action" ng-options="action for action in actions">
+        <select class="form-control input-sm" ng-model="updateCriteria.action" ng-options="action.name for action in actions">
             <option value=""> </option>
         </select>
         <button class="btn btn-primary btn-xs" type="submit">Submit</button>
