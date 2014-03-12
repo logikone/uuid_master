@@ -3,19 +3,23 @@ var UUID = require('../models/uuids').UUID;
 
 exports.index = function(req, res) {
 
+    // Build query object
+    var query = new Object;
+
+    if (req.query.host_name) {
+        query.host_name = new RegExp(req.query.host_name.toLowerCase());
+    }
+    if (req.query.state) {
+        query.state = new RegExp(req.query.state.toUpperCase());
+    }
+    if (req.query.last_request) {
+        query.last_request = req.query.last_request
+    }
+
     // Set some defaults
-    var hostname = /./;
-    var hostuuid = /./;
-    var state    = /./;
     var page     = 1;
     var limit    = 0;
 
-    if (req.query.hostname) {
-        hostname = new RegExp(req.query.hostname.toLowerCase());
-    }
-    if (req.query.state) {
-        state = new RegExp(req.query.state.toUpperCase());
-    }
     if (req.query.page) {
         page = req.query.page
     }
@@ -26,12 +30,15 @@ exports.index = function(req, res) {
     // Set number of docs to skip based off current page
     var skip = limit * (page - 1);
 
-    UUID.find({ host_name: hostname, state: state, host_uuid: hostuuid }, '-_id -__v', { skip: skip, limit: limit }, function(err, docs) {
+    UUID.find(query, '-_id -__v', { skip: skip, limit: limit }, function(err, docs) {
         if (err) {
             res.json(400, { message: err });
         }
+        else if (docs.length === 0) {
+            res.json(400, { message: "No UUID's found matching search criteria" });
+        }
         else {
-            UUID.count({ host_name: hostname, state: state, host_uuid: hostuuid }).count( function(err, count) {
+            UUID.count(query).count( function(err, count) {
 
                 var total_pages = Math.ceil(count / limit);
                 if (total_pages === Infinity) {
@@ -58,17 +65,65 @@ exports.index = function(req, res) {
 
 exports.show = function(req, res) {
 
-    var masterUUID = req.params.uuid.toUpperCase();
+    // Build query object
+    var query = new Object;
 
-    UUID.findOne({ id: masterUUID }, '-_id -__v', function(err, doc) {
+    query.id = new RegExp(req.params.uuid.toUpperCase());
+
+    if (req.query.host_name) {
+        query.host_name = new RegExp(req.query.host_name.toLowerCase());
+    }
+    if (req.query.state) {
+        query.state = new RegExp(req.query.state.toUpperCase());
+    }
+    if (req.query.last_request) {
+        query.last_request = req.query.last_request
+    }
+
+    // Set some defaults
+    var page     = 1;
+    var limit    = 0;
+
+    if (req.query.page) {
+        page = req.query.page
+    }
+    if (req.query.limit) {
+        limit = req.query.limit
+    }
+
+    // Set number of docs to skip based off current page
+    var skip = limit * (page - 1);
+
+    UUID.find(query, '-_id -__v', { skip: skip, limit: limit }, function(err, docs) {
         if (err) {
             res.json(400, { message: err });
         }
-        else if (!doc) {
-            res.json(400, { message: masterUUID + ' not found.' });
+        else if (docs.length === 0) {
+            res.json(400, { message: "No UUID's found matching search criteria" });
         }
         else {
-            res.json(200, { uuid: doc });
+
+            UUID.count(query).count( function(err, count) {
+
+                var total_pages = Math.ceil(count / limit);
+                if (total_pages === Infinity) {
+                    total_pages = 1
+                }
+
+                var response = {
+                    uuids: docs,
+                    meta: {
+                        count: docs.length,
+                        pagination: {
+                            total_pages: total_pages,
+                            current_page: page,
+                            total_count: count
+                        }
+                    }
+                }
+
+                res.json(200, response);
+            });
         }
     });
 };
