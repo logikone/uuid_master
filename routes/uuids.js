@@ -279,3 +279,11 @@ exports.destroy = function(req, res) {
         }
     });
 };
+
+exports.createUpdate = function(req, res) {
+    res.json(200);
+};
+
+exports.updateUpdate = function(req, res) {
+    res.json(200);
+};

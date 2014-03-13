@@ -20,4 +20,7 @@ app.post('/api/v1/uuids', uuids.create);
 app.put('/api/v1/uuids/:uuid', uuids.update);
 app.delete('/api/v1/uuids/:uuid', uuids.destroy);
 
+app.post('/api/v1/uuids/:uuid/update', uuids.createUpdate);
+app.put('/api/v1/uuids/:uuid/update', uuids.updateUpdate);
+
 app.listen(3000);
