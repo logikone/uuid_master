@@ -9,7 +9,6 @@ mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.datab
 
 app.use(express.logger({ immediate: true, format: 'dev' }));
 app.use(express.compress());
-app.use('/', express.static(__dirname + '/public'));
 //app.use(middleware.checkHeaders);
 app.use(express.json({ strict: true }));
 app.use(middleware.jsonParseFailure);
