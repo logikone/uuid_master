@@ -8,6 +8,8 @@ var config = require('config'),
     cluster = require('cluster'),
     fs = require('fs'),
     net = require('net'),
+    http = require('http'),
+    https = require('https'),
     app = express();
 
 mongoose.connect('mongodb://' + config.mongodb.host + '/' + config.mongodb.database);
@@ -89,6 +91,18 @@ else {
         console.log(err);
     });
 
+    // Redirect to https if enabled
+    if (config.server.http_to_https) {
+        app.use( function(req, res, next) {
+            if (!req.secure) {
+                res.redirect(301, 'https://' + req.host + ':' + config.server.https_port + req.originalUrl);
+            }
+            else {
+                next();
+            }
+        });
+    }
+
     app.use(express.compress());
     //app.use(middleware.checkHeaders);
     app.use(express.json({ strict: true }));
@@ -104,5 +118,23 @@ else {
     app.post('/api/v1/uuids/:uuid/update', uuids.createUpdate);
     app.put('/api/v1/uuids/:uuid/update', uuids.updateUpdate);
 
-    app.listen(3000);
+    if (config.server.http_enabled) {
+        var http_server = http.createServer(app).listen(config.server.http_port);
+
+        http_server.on('error', function(err) {
+            console.log(err);
+        })
+    }
+    if (config.server.https_enabled) {
+        var https_options = {
+            key: fs.readFileSync(config.server.ssl_key),
+            cert: fs.readFileSync(config.server.ssl_certificate)
+        };
+
+        var https_server = https.createServer(https_options, app).listen(config.server.https_port);
+
+        https_server.on('error', function(err) {
+            console.log(err);
+        })
+    }
 }
