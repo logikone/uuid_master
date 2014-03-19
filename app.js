@@ -33,10 +33,10 @@ else {
     if (config.logging.file.enabled) {
         logpath = config.logging.file.path;
         logfile = fs.createWriteStream(logpath, { flags: 'a' });
-        app.use(express.logger({ immediate: true, format: 'custom', stream: logfile }));
+        app.use(express.logger({ format: 'custom', stream: logfile }));
     }
     else {
-        app.use(express.logger({ immediate: true, format: 'custom' }));
+        app.use(express.logger({ format: 'custom' }));
     }
 
     if (config.logging.elasticsearch) {
@@ -45,6 +45,7 @@ else {
             // bits to log
             var request_url = tokens.url(req),
                 request_method = tokens.method(req),
+                request_host = tokens.req(req, res, 'host'),
                 response_time = tokens['response-time'](req),
                 date = tokens.date(req),
                 status_code = tokens.status(req, res),
@@ -55,6 +56,7 @@ else {
 
             var es_logline = {
                 request_url: request_url,
+                request_host: request_host,
                 request_method: request_method,
                 response_time: response_time,
                 date: date,
