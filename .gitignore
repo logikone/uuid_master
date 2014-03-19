@@ -2,4 +2,5 @@ node_modules/
 config/default.json
 config/runtime.json
 log/
+ssl/
 *.swp
