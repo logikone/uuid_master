@@ -97,6 +97,9 @@ exports.show = function(req, res) {
     if (req.query.host_name) {
         query.host_name = new RegExp(req.query.host_name.toLowerCase());
     }
+    if (req.query.host_uuid) {
+        query.host_uuid = new RegExp(req.query.host_uuid.toUpperCase());
+    }
     if (req.query.state) {
         query.state = new RegExp(req.query.state.toUpperCase());
     }
@@ -107,6 +110,7 @@ exports.show = function(req, res) {
     // Set some defaults
     var page     = 1;
     var limit    = 0;
+    var order    = '1';
 
     if (req.query.page) {
         page = req.query.page
@@ -114,11 +118,31 @@ exports.show = function(req, res) {
     if (req.query.limit) {
         limit = req.query.limit
     }
+    if (req.query.order) {
+        order = req.query.order
+    }
 
     // Set number of docs to skip based off current page
     var skip = limit * (page - 1);
 
-    UUID.find(query, '-_id -__v', { skip: skip, limit: limit }, function(err, docs) {
+    var query_options = {
+        skip: skip,
+        limit: limit
+    };
+
+    if (req.query.sort) {
+        if ( order === '1' ) {
+            query_options.sort = req.query.sort;
+        }
+        else if ( order === '-1' ) {
+            query_options.sort = '-' + req.query.sort;
+        }
+        else {
+            res.json(400, { message: "Unknown order paramter: " + order + ". Valid values are 1 or -1" });
+        }
+    };
+
+    UUID.find(query, '-_id -__v', query_options, function(err, docs) {
         if (err) {
             res.json(400, { message: err });
         }

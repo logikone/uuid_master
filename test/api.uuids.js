@@ -322,27 +322,501 @@ describe('UUID Functions', function() {
             });
         });
 
-        it('accepts parameter host_name and normalizes host_name.toLowerCase()');
-        it('accepts parameter host_uuid and normalizes host_uuid.toUpperCase()');
-        it('accepts parameter last_request');
-        it('accepts parameter state and normalizes state.toUpperCase()');
-        it('accepts parameter limit');
-        it('accepts parameter page');
-
-        it('sort=host_name order_by=1');
-        it('sort=host_name order_by=-1');
-        it('sort=host_uuid order_by=1');
-        it('sort=host_uuid order_by=-1');
-        it('sort=host_state order_by=1');
-        it('sort=host_state order_by=-1');
-        it('sort=last_request order_by=1');
-        it('sort=last_request order_by=-1');
-
-        it('returns error if no uuids found', function(done) {
+        it('accepts parameter host_name and normalizes host_name.toLowerCase()', function(done) {
             request(app)
-            .get('/api/v1/uuids/' + testhost.id + 'blahblah')
+            .get('/api/v1/uuids/4?host_name=test11')
             .set('Content-Type', 'application/json')
-            .expect('Content-Type', /application\/json/)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(1);
+
+                done();
+            });
+        });
+
+        it('accepts parameter host_uuid and normalizes host_uuid.toUpperCase()', function(done) {
+            request(app)
+            .get('/api/v1/uuids/4?host_uuid=' + testhost.host_uuid)
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(1);
+
+                done();
+            });
+        });
+
+        it('accepts parameter last_request', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?last_request=' + testhost.last_request)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(1);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal(testhost.host_name);
+                res.body.uuids[0].host_uuid.should.equal(testhost.host_uuid);
+                res.body.uuids[0].id.should.equal(testhost.id);
+                res.body.uuids[0].last_request.should.equal(testhost.last_request);
+                res.body.uuids[0].state.should.equal(testhost.state);
+
+                done();
+            });
+        });
+
+        it('accepts parameter state and normalizes state.toUpperCase()', function(done) {
+
+            var state = 'pending';
+
+            request(app)
+            .get('/api/v1/uuids/4?state=' + state)
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.uuids.forEach( function(uuid) {
+                    uuid.state.should.not.equal(state);
+                    uuid.state.should.equal(state.toUpperCase());
+                });
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(10);
+
+                done();
+            });
+        });
+
+        it('accepts parameter limit', function(done) {
+
+            var limit = 1;
+
+            request(app)
+            .get('/api/v1/uuids/4?limit=' + limit)
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.count.should.equal(1);
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.meta.pagination.total_count.should.equal(11);
+                res.body.meta.pagination.total_pages.should.equal(11);
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(1);
+
+                done();
+            });
+        });
+
+        it('accepts parameter page', function(done) {
+
+            var page  = '1';
+            var limit = '1';
+
+            request(app)
+            .get('/api/v1/uuids/4?limit=' + limit + '&page=' + page)
+            .set('Content-Type', 'application/json')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(1);
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.count.should.equal(1);
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.meta.pagination.current_page.should.equal(page);
+                res.body.meta.pagination.total_count.should.equal(11);
+                res.body.meta.pagination.total_pages.should.equal(Math.ceil(res.body.meta.pagination.total_count / limit));
+
+                done();
+            });
+        });
+
+        it('sort=host_name order=1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=host_name&order=1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal('test00.example.com');
+                res.body.uuids[0].host_uuid.should.equal('09467989-F7BB-498A-9918-C0D10A35A5D6');
+                res.body.uuids[0].id.should.equal('A866513F-7A95-47EB-885B-9687F3E66E71');
+                res.body.uuids[0].state.should.equal('PENDING');
+
+                done();
+            });
+        });
+
+        it('sort=host_name order=-1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=host_name&order=-1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal(testhost.host_name);
+                res.body.uuids[0].host_uuid.should.equal(testhost.host_uuid);
+                res.body.uuids[0].last_request.should.equal(testhost.last_request);
+                res.body.uuids[0].id.should.equal(testhost.id);
+                res.body.uuids[0].state.should.equal(testhost.state);
+
+                done();
+            });
+        });
+
+        it('sort=host_uuid order=1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=host_uuid&order=1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal('test00.example.com');
+                res.body.uuids[0].host_uuid.should.equal('09467989-F7BB-498A-9918-C0D10A35A5D6');
+                res.body.uuids[0].id.should.equal('A866513F-7A95-47EB-885B-9687F3E66E71');
+                res.body.uuids[0].state.should.equal('PENDING');
+
+                done();
+            });
+        });
+
+        it('sort=host_uuid order=-1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=host_uuid&order=-1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal(testhost.host_name);
+                res.body.uuids[0].host_uuid.should.equal(testhost.host_uuid);
+                res.body.uuids[0].id.should.equal(testhost.id);
+                res.body.uuids[0].state.should.equal(testhost.state);
+
+                done();
+            });
+        });
+
+        it('sort=state order=1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=state&order=1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal(testhost.host_name);
+                res.body.uuids[0].host_uuid.should.equal(testhost.host_uuid);
+                res.body.uuids[0].id.should.equal(testhost.id);
+                res.body.uuids[0].state.should.equal(testhost.state);
+
+                done();
+            });
+        });
+
+        it('sort=state order=-1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=state&order=-1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal('test00.example.com');
+                res.body.uuids[0].host_uuid.should.equal('09467989-F7BB-498A-9918-C0D10A35A5D6');
+                res.body.uuids[0].id.should.equal('A866513F-7A95-47EB-885B-9687F3E66E71');
+                res.body.uuids[0].state.should.equal('PENDING');
+
+                done();
+            });
+        });
+
+        it('sort=last_request order=1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=last_request&order=1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal('test00.example.com');
+                res.body.uuids[0].host_uuid.should.equal('09467989-F7BB-498A-9918-C0D10A35A5D6');
+                res.body.uuids[0].id.should.equal('A866513F-7A95-47EB-885B-9687F3E66E71');
+                res.body.uuids[0].state.should.equal('PENDING');
+
+                done();
+            });
+        });
+
+        it('sort=last_request order=-1', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=last_request&order=-1')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal(testhost.host_name);
+                res.body.uuids[0].host_uuid.should.equal(testhost.host_uuid);
+                res.body.uuids[0].id.should.equal(testhost.id);
+                res.body.uuids[0].state.should.equal(testhost.state);
+
+                done();
+            });
+        });
+
+
+        it('returns proper default order if order param is not provided', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=last_request')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(200)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('uuids');
+                res.body.should.have.property('meta');
+                res.body.meta.should.have.property('count');
+                res.body.meta.should.have.property('pagination');
+                res.body.meta.pagination.should.have.property('total_pages');
+                res.body.meta.pagination.should.have.property('total_count');
+                res.body.meta.pagination.should.have.property('current_page');
+                res.body.uuids.should.be.an('array');
+                res.body.uuids.should.have.length(11);
+                res.body.uuids[0].should.have.property('host_name');
+                res.body.uuids[0].should.have.property('host_uuid');
+                res.body.uuids[0].should.have.property('id');
+                res.body.uuids[0].should.have.property('last_request');
+                res.body.uuids[0].should.have.property('state');
+                res.body.uuids[0].host_name.should.equal('test00.example.com');
+                res.body.uuids[0].host_uuid.should.equal('09467989-F7BB-498A-9918-C0D10A35A5D6');
+                res.body.uuids[0].id.should.equal('A866513F-7A95-47EB-885B-9687F3E66E71');
+                res.body.uuids[0].state.should.equal('PENDING');
+
+                done();
+            });
+        });
+
+
+        it('returns error if order is not valid', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?sort=host_uuid&order=2')
+            .expect('Content-Type', 'application/json; charset=utf-8')
             .expect(400)
             .end( function(err, res) {
                 if (err) {
@@ -350,7 +824,25 @@ describe('UUID Functions', function() {
                 }
 
                 res.body.should.have.property('message');
-                res.body.message.should.equal("No UUID's found matching search criteria");
+                res.body.message.should.equal('Unknown order paramter: 2. Valid values are 1 or -1');
+
+                done();
+            });
+        });
+
+        it('returns error if no uuids found', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/4?state=denied')
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .expect(400)
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('No UUID\'s found matching search criteria');
 
                 done();
             });
