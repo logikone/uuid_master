@@ -22,7 +22,7 @@ exports.index = function(req, res) {
     // Set some defaults
     var page     = 1;
     var limit    = 0;
-    var order    = 1;
+    var order    = '1';
 
     if (req.query.page) {
         page = req.query.page
