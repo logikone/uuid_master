@@ -117,8 +117,9 @@ else {
     app.put('/api/v1/uuids/:uuid', uuids.update);
     app.delete('/api/v1/uuids/:uuid', uuids.destroy);
 
+    app.get('/api/v1/uuids/:uuid/update', uuids.indexUpdate);
     app.post('/api/v1/uuids/:uuid/update', uuids.createUpdate);
-    app.put('/api/v1/uuids/:uuid/update', uuids.updateUpdate);
+    app.delete('/api/v1/uuids/:uuid/update', uuids.deleteUpdate);
 
     if (config.server.http_enabled) {
         var http_server = http.createServer(app).listen(config.server.http_port);
