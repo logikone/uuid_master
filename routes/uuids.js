@@ -1,5 +1,6 @@
 var genUUID = require('../lib/uuid');
 var UUID = require('../models/uuids').UUID;
+var UUIDUpdates = require('../models/uuids').UUIDUpdates;
 
 exports.index = function(req, res) {
 
@@ -328,10 +329,58 @@ exports.destroy = function(req, res) {
     });
 };
 
-exports.createUpdate = function(req, res) {
-    res.json(200);
+exports.indexUpdate = function(req, res) {
+    UUIDUpdates.find({ uuid_id: req.params.uuid.toUpperCase() }, '-_id -__v', function(err, docs) {
+        if (err) {
+            res.json(400, err);
+        }
+        else {
+            if (!docs) {
+                res.json(400, { message: 'There are currently no updates for this host' });
+            }
+            else {
+                res.json(200, docs);
+            }
+        }
+    });
 };
 
-exports.updateUpdate = function(req, res) {
-    res.json(200);
+exports.createUpdate = function(req, res) {
+
+    var host_name = req.body.host_name,
+        host_uuid = req.body.host_uuid,
+        now = new Date();
+
+    UUIDUpdates.findOneAndUpdate({ uuid_id: req.params.uuid.toUpperCase() }, { host_name: host_name, host_uuid: host_uuid, last_request: now }, { upsert: true }, function(err, doc) {
+        if (err) {
+            res.json(400, { message: err });
+        }
+        else {
+            res.json(200, {
+                host_name: doc.host_name,
+                host_uuid: doc.host_uuid,
+                last_request: doc.last_request,
+                uuid: doc.uuid_id
+            });
+        }
+    });
+};
+
+exports.deleteUpdate = function(req, res) {
+
+    var uuid = req.params.uuid.toUpperCase();
+
+    UUIDUpdates.remove({ uuid_id: uuid }, function(err, doc) {
+        if (err) {
+            res.json(400, err);
+        }
+        else {
+            if (!doc) {
+                res.json(400, { message: uuid + ' does not exist' });
+            }
+            else {
+                res.json(200);
+            }
+        }
+    });
 };
