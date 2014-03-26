@@ -347,11 +347,34 @@ exports.indexUpdate = function(req, res) {
 
 exports.createUpdate = function(req, res) {
 
-    var host_name = req.body.host_name,
-        host_uuid = req.body.host_uuid,
-        now = new Date();
+    var masterUUID = req.params.uuid.toUpperCase(),
+        now = new Date(),
+        updateObj = {
+            last_request: now
+        };
 
-    UUIDUpdates.findOneAndUpdate({ uuid_id: req.params.uuid.toUpperCase() }, { host_name: host_name, host_uuid: host_uuid, last_request: now }, { upsert: true }, function(err, doc) {
+    if (req.body.host_name) {
+        updateObj.host_name = req.body.host_name.toLowerCase()
+    }
+    if (req.body.host_uuid) {
+        updateObj.host_uuid = req.body.host_uuid.toUpperCase()
+    }
+
+    if (!updateObj.host_name && !updateObj.host_uuid) {
+        res.json(400, { message: 'You must provide either a host_uuid or host_name' });
+    }
+
+    UUID.findOne({ id: masterUUID }, function(err, doc) {
+        if (err) {
+            res.json(400, err);
+        }
+
+        if (!doc) {
+            res.json(400, { message: masterUUID + ' does not exist' });
+        }
+    });
+
+    UUIDUpdates.findOneAndUpdate({ uuid_id: masterUUID }, updateObj, { upsert: true }, function(err, doc) {
         if (err) {
             res.json(400, { message: err });
         }
@@ -360,7 +383,7 @@ exports.createUpdate = function(req, res) {
                 host_name: doc.host_name,
                 host_uuid: doc.host_uuid,
                 last_request: doc.last_request,
-                uuid: doc.uuid_id
+                id: doc.uuid_id
             });
         }
     });
