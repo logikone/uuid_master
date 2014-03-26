@@ -37,7 +37,7 @@ else {
         app.use(express.logger({ format: 'custom' }));
     }
 
-    if (config.logging.elasticsearch) {
+    if (config.logging.elasticsearch.enabled) {
         app.use(express.logger( function(tokens, req, res) {
 
             // bits to log
