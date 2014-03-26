@@ -1,0 +1,12 @@
+Source: uuid-master-api
+Section: admin
+Priority: extra
+Maintainer: Chris Larsen <clarsen801@gmail.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+
+Package: uuid-master-api
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: UUID Master API Server
+ <insert long description, indented with spaces>
