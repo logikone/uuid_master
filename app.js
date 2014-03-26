@@ -106,7 +106,6 @@ else {
     }
 
     app.use(express.compress());
-    //app.use(middleware.checkHeaders);
     app.use(express.json({ strict: true }));
     app.use(middleware.jsonParseFailure);
 
