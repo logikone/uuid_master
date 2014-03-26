@@ -7,6 +7,7 @@ build:
 
 test: build
 	@./node_modules/.bin/mocha --reporter spec --timeout 5000
+	rm config/runtime.json
 
 install:
 	npm install --production
