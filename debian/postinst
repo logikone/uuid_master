@@ -20,6 +20,7 @@ set -e
 
 case "$1" in
     configure)
+        mv /var/tmp/default.json /etc/uuid-master/default.json
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
