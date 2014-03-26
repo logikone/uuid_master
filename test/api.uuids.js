@@ -7,6 +7,7 @@ var should = require('chai').should(),
     middleware = require('../lib/middleware'),
     fixtures = require('./fixtures'),
     UUID = require('../models/uuids').UUID,
+    UUIDUpdates = require('../models/uuids').UUIDUpdates,
     app = express();
 
 mongoose.connect('mongodb://localhost/uuid_master_unit_test');
@@ -20,8 +21,10 @@ app.get('/api/v1/uuids/:uuid', uuids.show);
 app.post('/api/v1/uuids', uuids.create);
 app.put('/api/v1/uuids/:uuid', uuids.update);
 app.delete('/api/v1/uuids/:uuid', uuids.destroy);
-app.post('/api/v1/uuids/:uuid/update', uuids.createUpdate);
-app.put('/api/v1/uuids/:uuid/update', uuids.updateUpdate);
+
+app.get('/api/v1/uuids/:uuid/diff', uuids.indexDiff);
+app.post('/api/v1/uuids/:uuid/diff', uuids.createDiff);
+app.delete('/api/v1/uuids/:uuid/diff', uuids.destroyDiff);
 
 // TESTS
 describe('UUID Functions', function() {
@@ -33,6 +36,12 @@ describe('UUID Functions', function() {
 
             // Remove all records from table first just in case
             UUID.remove( function(err) {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            UUIDUpdates.remove( function(err) {
                 if (err) {
                     throw err;
                 }
@@ -1413,6 +1422,229 @@ describe('UUID Functions', function() {
         });
     });
 
+    describe('POST /api/v1/uuids/:uuid/diff', function() {
+        it('stores differences between host_name and whats in database and is normalizes host_name.toLowerCase()', function(done) {
+
+            var host_name = 'TEST10.EXAMPLE.COM';
+
+            request(app)
+            .post('/api/v1/uuids/' + testhost.id + '/diff')
+            .set('Content-Type', 'application/json')
+            .send({ host_name: host_name })
+            .expect(200)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('host_name');
+                res.body.should.have.property('last_request');
+                res.body.should.have.property('id');
+                res.body.host_name.should.equal(host_name.toLowerCase());
+                res.body.id.should.equal(testhost.id);
+
+                testhost.host_name = host_name.toLowerCase();
+
+                done();
+            });
+
+        });
+
+        it('stores differences between host_uuid and whats in database and normalizes host_uuid.toUpperCase()', function(done) {
+
+            var host_uuid = '161e40a7-25ee-45e8-bba7-77929b1d7a15';
+
+            request(app)
+            .post('/api/v1/uuids/' + testhost.id + '/diff')
+            .set('Content-Type', 'application/json')
+            .send({ host_uuid: host_uuid })
+            .expect(200)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('host_uuid');
+                res.body.should.have.property('last_request');
+                res.body.should.have.property('id');
+                res.body.host_uuid.should.equal(host_uuid.toUpperCase());
+                res.body.id.should.equal(testhost.id);
+
+                testhost.host_uuid = host_uuid.toUpperCase();
+
+                done();
+            });
+
+        });
+
+        it('stores differences between both host_uuid and host_name comparted to whats in database and normalizes properly', function(done) {
+
+            var host_uuid = '161e40a7-25ee-45e8-bba7-77929b1d7b15';
+            var host_name = 'TEST12.EXAMPLE.COM';
+
+            request(app)
+            .post('/api/v1/uuids/' + testhost.id + '/diff')
+            .set('Content-Type', 'application/json')
+            .send({ host_uuid: host_uuid, host_name: host_name })
+            .expect(200)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('host_uuid');
+                res.body.should.have.property('host_name');
+                res.body.should.have.property('last_request');
+                res.body.should.have.property('id');
+                res.body.host_uuid.should.equal(host_uuid.toUpperCase());
+                res.body.host_name.should.equal(host_name.toLowerCase());
+                res.body.id.should.equal(testhost.id);
+
+                testhost.host_uuid = host_uuid.toUpperCase();
+                testhost.host_name = host_name.toLowerCase();
+
+                done();
+            });
+
+        });
+
+        it('returns error if no proper params are passed', function(done) {
+
+            request(app)
+            .post('/api/v1/uuids/' + testhost.id + '/diff')
+            .set('Content-Type', 'application/json')
+            .send({ hostname: 'test13.example.com' })
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('You must provide either a host_uuid or host_name');
+
+                done();
+            });
+        });
+
+        it('returns error if uuid not found', function(done) {
+
+            request(app)
+            .post('/api/v1/uuids/1234/diff')
+            .set('Content-Type', 'application/json')
+            .send({ host_name: 'test13.example.com' })
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('1234 does not exist');
+
+                done();
+            });
+
+        });
+    });
+
+    describe('GET /api/v1/uuids/:uuid/diff', function() {
+
+        it('lists pending uuid diff', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/' + testhost.id + '/diff')
+            .expect(200)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('host_name');
+                res.body.should.have.property('host_uuid');
+                res.body.should.have.property('last_request');
+                res.body.should.have.property('uuid_id');
+                res.body.uuid_id.should.equal(testhost.id);
+                res.body.host_name.should.equal('test12.example.com');
+                res.body.host_uuid.should.equal('161E40A7-25EE-45E8-BBA7-77929B1D7B15');
+
+                done();
+            });
+        });
+
+        it('returns 400 if no diffs exist', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/A866513F-7A95-47EB-885B-9687F3E66E71/diff')
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('There are currently no diffs for A866513F-7A95-47EB-885B-9687F3E66E71');
+
+                done();
+            });
+        });
+
+        it('returns 400 if uuid not found', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/1234/diff')
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('1234 does not exist');
+
+                done();
+            });
+        });
+
+    });
+
+    describe('DELETE /api/v1/uuids/:uuid/diff', function() {
+
+        it('allows deletion of uuid diff', function(done) {
+
+            request(app)
+            .del('/api/v1/uuids/' + testhost.id + '/diff')
+            .expect(200, done)
+        });
+
+        it('returns 400 if uuid not found', function(done) {
+
+            request(app)
+            .del('/api/v1/uuids/4321/diff')
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('4321 does not exist');
+
+                done();
+            });
+
+        });
+    });
+
     describe('DELETE /api/v1/uuids/:uuid', function() {
 
         it('allows deletion on proper request', function(done) {
@@ -1440,25 +1672,17 @@ describe('UUID Functions', function() {
         });
     });
 
-    describe('POST /api/v1/uuids/:uuid/update', function() {
-        it('accepts and stores differences between hosts and whats in database');
-        it('returns error if uuid not found');
-    });
-
-    describe('PUT /api/v1/uuids/:uuid/update', function() {
-        it('allows update to uuid from difference');
-        it('returns error if uuid not found');
-    });
-
-    describe('GET /api/v1/uuids/:uuid/updates', function() {
-        it('lists pending uuid updates');
-    });
-
     // Unload Fixure Data
     describe('Unload Fixture Data', function() {
 
         before( function(done) {
             UUID.remove( function(err) {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            UUIDUpdates.remove( function(err) {
                 if (err) {
                     throw err;
                 }

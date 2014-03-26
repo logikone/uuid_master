@@ -117,8 +117,9 @@ else {
     app.put('/api/v1/uuids/:uuid', uuids.update);
     app.delete('/api/v1/uuids/:uuid', uuids.destroy);
 
-    app.post('/api/v1/uuids/:uuid/update', uuids.createUpdate);
-    app.put('/api/v1/uuids/:uuid/update', uuids.updateUpdate);
+    app.get('/api/v1/uuids/:uuid/diff', uuids.indexDiff);
+    app.post('/api/v1/uuids/:uuid/diff', uuids.createDiff);
+    app.delete('/api/v1/uuids/:uuid/diff', uuids.destroyDiff);
 
     if (config.server.http_enabled) {
         var http_server = http.createServer(app).listen(config.server.http_port);
