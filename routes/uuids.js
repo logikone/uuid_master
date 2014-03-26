@@ -330,16 +330,28 @@ exports.destroy = function(req, res) {
 };
 
 exports.indexDiff = function(req, res) {
-    UUIDUpdates.find({ uuid_id: req.params.uuid.toUpperCase() }, '-_id -__v', function(err, docs) {
+
+    var masterUUID = req.params.uuid.toUpperCase();
+
+    UUID.findOne({ id: masterUUID }, function(err, doc) {
+        if (err) {
+            res.json(400, err);
+        }
+        if (!doc) {
+            res.json(400, { message: masterUUID + ' does not exist' });
+        }
+    });
+
+    UUIDUpdates.findOne({ uuid_id: masterUUID }, '-_id -__v', function(err, doc) {
         if (err) {
             res.json(400, err);
         }
         else {
-            if (!docs) {
-                res.json(400, { message: 'There are currently no updates for this host' });
+            if (!doc) {
+                res.json(400, { message: 'There are currently no diffs for ' + masterUUID });
             }
             else {
-                res.json(200, docs);
+                res.json(200, doc);
             }
         }
     });

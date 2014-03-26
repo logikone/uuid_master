@@ -1547,8 +1547,66 @@ describe('UUID Functions', function() {
     });
 
     describe('GET /api/v1/uuids/:uuid/diff', function() {
-        it('lists pending uuid updates');
-        it('returns error if uuid not found');
+
+        it('lists pending uuid diff', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/' + testhost.id + '/diff')
+            .expect(200)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('host_name');
+                res.body.should.have.property('host_uuid');
+                res.body.should.have.property('last_request');
+                res.body.should.have.property('uuid_id');
+                res.body.uuid_id.should.equal(testhost.id);
+                res.body.host_name.should.equal('test12.example.com');
+                res.body.host_uuid.should.equal('161E40A7-25EE-45E8-BBA7-77929B1D7B15');
+
+                done();
+            });
+        });
+
+        it('returns 400 if no diffs exist', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/A866513F-7A95-47EB-885B-9687F3E66E71/diff')
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('There are currently no diffs for A866513F-7A95-47EB-885B-9687F3E66E71');
+
+                done();
+            });
+        });
+
+        it('returns 400 if uuid not found', function(done) {
+
+            request(app)
+            .get('/api/v1/uuids/1234/diff')
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('1234 does not exist');
+
+                done();
+            });
+        });
+
     });
 
     describe('DELETE /api/v1/uuids/:uuid/diff', function() {
