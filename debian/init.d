@@ -21,6 +21,7 @@ DAEMON=/usr/sbin/uuid-master-api # Introduce the server's location here
 DAEMON_ARGS=""             # Arguments to run the daemon with
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
+NODE_CONFIG_DIR=/etc/uuid-master
 
 # Exit if the package is not installed
 [ -x $DAEMON ] || exit 0

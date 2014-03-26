@@ -6,5 +6,7 @@
 # This is a POSIX shell fragment
 #
 
+NODE_ENV=production
+
 # Additional options that are passed to the Daemon.
 DAEMON_OPTS=""
