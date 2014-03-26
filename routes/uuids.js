@@ -337,22 +337,23 @@ exports.indexDiff = function(req, res) {
         if (err) {
             res.json(400, err);
         }
-        if (!doc) {
+        else if (!doc) {
             res.json(400, { message: masterUUID + ' does not exist' });
         }
-    });
-
-    UUIDUpdates.findOne({ uuid_id: masterUUID }, '-_id -__v', function(err, doc) {
-        if (err) {
-            res.json(400, err);
-        }
         else {
-            if (!doc) {
-                res.json(400, { message: 'There are currently no diffs for ' + masterUUID });
-            }
-            else {
-                res.json(200, doc);
-            }
+            UUIDUpdates.findOne({ uuid_id: masterUUID }, '-_id -__v', function(err, doc) {
+                if (err) {
+                    res.json(400, err);
+                }
+                else {
+                    if (!doc) {
+                        res.json(400, { message: 'There are currently no diffs for ' + masterUUID });
+                    }
+                    else {
+                        res.json(200, doc);
+                    }
+                }
+            });
         }
     });
 };
@@ -375,30 +376,31 @@ exports.createDiff = function(req, res) {
     if (!updateObj.host_name && !updateObj.host_uuid) {
         res.json(400, { message: 'You must provide either a host_uuid or host_name' });
     }
-
-    UUID.findOne({ id: masterUUID }, function(err, doc) {
-        if (err) {
-            res.json(400, err);
-        }
-
-        if (!doc) {
-            res.json(400, { message: masterUUID + ' does not exist' });
-        }
-    });
-
-    UUIDUpdates.findOneAndUpdate({ uuid_id: masterUUID }, updateObj, { upsert: true }, function(err, doc) {
-        if (err) {
-            res.json(400, { message: err });
-        }
-        else {
-            res.json(200, {
-                host_name: doc.host_name,
-                host_uuid: doc.host_uuid,
-                last_request: doc.last_request,
-                id: doc.uuid_id
-            });
-        }
-    });
+    else {
+        UUID.findOne({ id: masterUUID }, function(err, doc) {
+            if (err) {
+                res.json(400, err);
+            }
+            else if (!doc) {
+                res.json(400, { message: masterUUID + ' does not exist' });
+            }
+            else {
+                UUIDUpdates.findOneAndUpdate({ uuid_id: masterUUID }, updateObj, { upsert: true }, function(err, doc) {
+                    if (err) {
+                        res.json(400, { message: err });
+                    }
+                    else {
+                        res.json(200, {
+                            host_name: doc.host_name,
+                            host_uuid: doc.host_uuid,
+                            last_request: doc.last_request,
+                            id: doc.uuid_id
+                        });
+                    }
+                });
+            }
+        });
+    }
 };
 
 exports.destroyDiff = function(req, res) {

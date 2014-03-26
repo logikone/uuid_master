@@ -1628,7 +1628,7 @@ describe('UUID Functions', function() {
         it('returns 400 if uuid not found', function(done) {
 
             request(app)
-            .del('/api/v1/uuids/4321/diff')
+            .del('/api/v1/uuids/1234/diff')
             .expect(400)
             .expect('Content-Type', 'application/json; charset=utf-8')
             .end( function(err, res) {
@@ -1637,7 +1637,7 @@ describe('UUID Functions', function() {
                 }
 
                 res.body.should.have.property('message');
-                res.body.message.should.equal('4321 does not exist');
+                res.body.message.should.equal('1234 does not exist');
 
                 done();
             });
