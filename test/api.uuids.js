@@ -7,6 +7,7 @@ var should = require('chai').should(),
     middleware = require('../lib/middleware'),
     fixtures = require('./fixtures'),
     UUID = require('../models/uuids').UUID,
+    UUIDUpdates = require('../models/uuids').UUIDUpdates,
     app = express();
 
 mongoose.connect('mongodb://localhost/uuid_master_unit_test');
@@ -35,6 +36,12 @@ describe('UUID Functions', function() {
 
             // Remove all records from table first just in case
             UUID.remove( function(err) {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            UUIDUpdates.remove( function(err) {
                 if (err) {
                     throw err;
                 }
@@ -1610,8 +1617,32 @@ describe('UUID Functions', function() {
     });
 
     describe('DELETE /api/v1/uuids/:uuid/diff', function() {
-        it('allows to delete uuid update');
-        it('returns error if uuid not found');
+
+        it('allows deletion of uuid diff', function(done) {
+
+            request(app)
+            .del('/api/v1/uuids/' + testhost.id + '/diff')
+            .expect(200, done)
+        });
+
+        it('returns 400 if uuid not found', function(done) {
+
+            request(app)
+            .del('/api/v1/uuids/4321/diff')
+            .expect(400)
+            .expect('Content-Type', 'application/json; charset=utf-8')
+            .end( function(err, res) {
+                if (err) {
+                    throw err;
+                }
+
+                res.body.should.have.property('message');
+                res.body.message.should.equal('4321 does not exist');
+
+                done();
+            });
+
+        });
     });
 
     describe('DELETE /api/v1/uuids/:uuid', function() {
@@ -1646,6 +1677,12 @@ describe('UUID Functions', function() {
 
         before( function(done) {
             UUID.remove( function(err) {
+                if (err) {
+                    throw err;
+                }
+            });
+
+            UUIDUpdates.remove( function(err) {
                 if (err) {
                     throw err;
                 }
