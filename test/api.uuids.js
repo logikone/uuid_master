@@ -7,7 +7,7 @@ var should = require('chai').should(),
     middleware = require('../lib/middleware'),
     fixtures = require('./fixtures'),
     UUID = require('../models/uuids').UUID,
-    UUIDUpdates = require('../models/uuids').UUIDUpdates,
+    UUIDDiffs = require('../models/uuids').UUIDDiffs,
     app = express();
 
 mongoose.connect('mongodb://localhost/uuid_master_unit_test');
@@ -41,7 +41,7 @@ describe('UUID Functions', function() {
                 }
             });
 
-            UUIDUpdates.remove( function(err) {
+            UUIDDiffs.remove( function(err) {
                 if (err) {
                     throw err;
                 }
@@ -1682,7 +1682,7 @@ describe('UUID Functions', function() {
                 }
             });
 
-            UUIDUpdates.remove( function(err) {
+            UUIDDiffs.remove( function(err) {
                 if (err) {
                     throw err;
                 }

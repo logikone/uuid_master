@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var UUIDUpdatesSchema = mongoose.Schema({
+var UUIDDiffsSchema = mongoose.Schema({
     host_name: String,
     host_uuid: String,
     last_request: Date,
@@ -16,9 +16,9 @@ var UUIDSchema = mongoose.Schema({
 });
 
 var UUID = mongoose.model('UUID', UUIDSchema);
-var UUIDUpdates = mongoose.model('UUIDUpdates', UUIDUpdatesSchema);
+var UUIDDiffs = mongoose.model('UUIDDiffs', UUIDDiffsSchema);
 
 module.exports = {
     UUID: UUID,
-    UUIDUpdates: UUIDUpdates
+    UUIDDiffs: UUIDDiffs
 }
