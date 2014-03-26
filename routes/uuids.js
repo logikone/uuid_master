@@ -329,7 +329,7 @@ exports.destroy = function(req, res) {
     });
 };
 
-exports.indexUpdate = function(req, res) {
+exports.indexDiff = function(req, res) {
     UUIDUpdates.find({ uuid_id: req.params.uuid.toUpperCase() }, '-_id -__v', function(err, docs) {
         if (err) {
             res.json(400, err);
@@ -345,7 +345,7 @@ exports.indexUpdate = function(req, res) {
     });
 };
 
-exports.createUpdate = function(req, res) {
+exports.createDiff = function(req, res) {
 
     var masterUUID = req.params.uuid.toUpperCase(),
         now = new Date(),
@@ -389,7 +389,7 @@ exports.createUpdate = function(req, res) {
     });
 };
 
-exports.deleteUpdate = function(req, res) {
+exports.destroyDiff = function(req, res) {
 
     var uuid = req.params.uuid.toUpperCase();
 
