@@ -1,0 +1,27 @@
+{
+    "mongodb": {
+        "host": "localhost",
+        "database": "uuid_master"
+    },
+    "logging": {
+        "file": {
+            "format": ":remote-addr - - [:date] \":method :url HTTP/:http-version\" :status :res[content-length] :response-time \":referrer\" \":user-agent\"",
+            "enabled": true,
+            "path": "./log/access.log"
+        },
+        "elasticsearch": {
+            "enabled": false,
+            "tags": [ "uuid_master_api" ],
+            "host": "localhost",
+            "port": "9200"
+        }
+    },
+    "server": {
+        "http_enabled": true,
+        "https_enabled": false,
+        "http_port": "8080",
+        "https_port": "8443",
+        "ssl_key": "ssl/server.key",
+        "ssl_certificate": "ssl/server.crt"
+    }
+}
