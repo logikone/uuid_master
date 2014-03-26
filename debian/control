@@ -7,6 +7,6 @@ Standards-Version: 3.9.2
 
 Package: uuid-master-api
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, nodejs (>=0.10.26)
 Description: UUID Master API Server
  <insert long description, indented with spaces>
