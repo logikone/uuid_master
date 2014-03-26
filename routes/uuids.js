@@ -1,6 +1,6 @@
 var genUUID = require('../lib/uuid');
 var UUID = require('../models/uuids').UUID;
-var UUIDUpdates = require('../models/uuids').UUIDUpdates;
+var UUIDDiffs = require('../models/uuids').UUIDDiffs;
 
 exports.index = function(req, res) {
 
@@ -341,7 +341,7 @@ exports.indexDiff = function(req, res) {
             res.json(400, { message: masterUUID + ' does not exist' });
         }
         else {
-            UUIDUpdates.findOne({ uuid_id: masterUUID }, '-_id -__v', function(err, doc) {
+            UUIDDiffs.findOne({ uuid_id: masterUUID }, '-_id -__v', function(err, doc) {
                 if (err) {
                     res.json(400, err);
                 }
@@ -385,7 +385,7 @@ exports.createDiff = function(req, res) {
                 res.json(400, { message: masterUUID + ' does not exist' });
             }
             else {
-                UUIDUpdates.findOneAndUpdate({ uuid_id: masterUUID }, updateObj, { upsert: true }, function(err, doc) {
+                UUIDDiffs.findOneAndUpdate({ uuid_id: masterUUID }, updateObj, { upsert: true }, function(err, doc) {
                     if (err) {
                         res.json(400, { message: err });
                     }
@@ -407,7 +407,7 @@ exports.destroyDiff = function(req, res) {
 
     var uuid = req.params.uuid.toUpperCase();
 
-    UUIDUpdates.remove({ uuid_id: uuid }, function(err, doc) {
+    UUIDDiffs.remove({ uuid_id: uuid }, function(err, doc) {
         if (err) {
             res.json(400, err);
         }
