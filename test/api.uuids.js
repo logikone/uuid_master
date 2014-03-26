@@ -21,9 +21,9 @@ app.post('/api/v1/uuids', uuids.create);
 app.put('/api/v1/uuids/:uuid', uuids.update);
 app.delete('/api/v1/uuids/:uuid', uuids.destroy);
 
-app.get('/api/v1/uuids/:uuid/diff', uuids.indexUpdate);
-app.post('/api/v1/uuids/:uuid/diff', uuids.createUpdate);
-app.delete('/api/v1/uuids/:uuid/diff', uuids.deleteUpdate);
+app.get('/api/v1/uuids/:uuid/diff', uuids.indexDiff);
+app.post('/api/v1/uuids/:uuid/diff', uuids.createDiff);
+app.delete('/api/v1/uuids/:uuid/diff', uuids.destroyDiff);
 
 // TESTS
 describe('UUID Functions', function() {
