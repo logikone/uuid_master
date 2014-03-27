@@ -2,8 +2,8 @@ Source: uuid-master-api
 Section: admin
 Priority: extra
 Maintainer: Chris Larsen <clarsen801@gmail.com>
-Build-Depends: debhelper (>= 8.0.0)
-Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 8.0.0), nodejs (>=0.10.26)
+Standards-Version: 3.9.3
 
 Package: uuid-master-api
 Architecture: any
