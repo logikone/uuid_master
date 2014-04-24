@@ -65,7 +65,7 @@ else {
                 user_agent: user_agent
             };
 
-            var tags = new Array;
+            var tags = [];
 
             for ( i = 0; i < config.logging.elasticsearch.tags.length; i++ ) {
                 tags.push(config.logging.elasticsearch.tags[i]);
@@ -123,7 +123,7 @@ else {
 
         http_server.on('error', function(err) {
             console.log(err);
-        })
+        });
     }
     if (config.server.https_enabled) {
         var https_options = {
@@ -135,6 +135,6 @@ else {
 
         https_server.on('error', function(err) {
             console.log(err);
-        })
+        });
     }
 }
