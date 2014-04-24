@@ -9,6 +9,9 @@ test: build
 	@./node_modules/.bin/mocha --reporter spec --timeout 5000
 	rm config/runtime.json
 
+jshint:
+	@./node_modules/.bin/jshint app.js lib/ routes/ test/ models/
+
 install:
 	npm install --production
 	npm prune --production
@@ -35,4 +38,4 @@ endif
 clean:
 	rm -rf ./node_modules
 
-.PHONY: build test install clean
+.PHONY: build test jshint install clean
