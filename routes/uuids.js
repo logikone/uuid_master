@@ -189,25 +189,7 @@ exports.create = function(req, res) {
     var newUUID  = '';
     var now      = new Date();
 
-    // TODO find a better way to do this. jshint throws error
-    do {
-        newUUID = genUUID().toUpperCase();
-    
-        UUID.find({
-            id: newUUID
-        }, function(err, docs) {
-            if (err) {
-                res.json(400, { message: err });
-            }
-            else {
-                if (docs === false) {
-                    newUUID = false;
-                }
-            }
-        });
-    }
-    while ( newUUID === false );
-
+    // TODO find way to ensure uniqueness of id field
     UUID.findOne({
         host_name: hostName,
         host_uuid: hostUUID
@@ -220,7 +202,7 @@ exports.create = function(req, res) {
                 UUID.create({
                     host_name: hostName,
                     host_uuid: hostUUID,
-                    id: newUUID,
+                    id: genUUID().toUpperCase(),
                     last_request: now,
                     state: 'PENDING'
                 }, function(err, doc) {
