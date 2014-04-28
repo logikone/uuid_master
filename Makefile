@@ -5,7 +5,7 @@ INSTALLCONF := true
 build:
 	npm install
 
-test: build
+test: build jshint
 	@./node_modules/.bin/mocha --reporter spec --timeout 5000
 	rm config/runtime.json
 
