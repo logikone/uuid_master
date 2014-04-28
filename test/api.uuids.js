@@ -58,8 +58,6 @@ describe('UUID Functions', function() {
                 }, function(err, doc) {
                     if (err) {
                         throw err;
-
-                        console.log(doc);
                     }
                 });
             });
@@ -84,7 +82,7 @@ describe('UUID Functions', function() {
         });
     });
 
-    var testhost = new Object;
+    var testhost = {};
 
     describe('POST /api/v1/uuids', function() {
 
@@ -119,11 +117,11 @@ describe('UUID Functions', function() {
                 res.body.uuid.state.should.equal('PENDING');
 
                 // Assign the test host information to an object for later use
-                testhost['id']           = res.body.uuid.id;
-                testhost['host_name']    = res.body.uuid.host_name;
-                testhost['host_uuid']    = res.body.uuid.host_uuid;
-                testhost['state']        = res.body.uuid.state;
-                testhost['last_request'] = res.body.uuid.last_request;
+                testhost.id           = res.body.uuid.id;
+                testhost.host_name    = res.body.uuid.host_name;
+                testhost.host_uuid    = res.body.uuid.host_uuid;
+                testhost.state        = res.body.uuid.state;
+                testhost.last_request = res.body.uuid.last_request;
 
                 done();
             });
@@ -1622,7 +1620,7 @@ describe('UUID Functions', function() {
 
             request(app)
             .del('/api/v1/uuids/' + testhost.id + '/diff')
-            .expect(200, done)
+            .expect(200, done);
         });
 
         it('returns 400 if uuid not found', function(done) {
@@ -1651,7 +1649,7 @@ describe('UUID Functions', function() {
 
             request(app)
             .del('/api/v1/uuids/' + testhost.id)
-            .expect(200, done)
+            .expect(200, done);
         });
 
         it('disallows deletion on inproper request', function(done) {
