@@ -5,7 +5,7 @@ var UUIDDiffs = require('../models/uuids').UUIDDiffs;
 exports.index = function(req, res) {
 
     // Build query object
-    var query = new Object;
+    var query = {};
 
     if (req.query.host_name) {
         query.host_name = new RegExp(req.query.host_name.toLowerCase());
@@ -26,13 +26,13 @@ exports.index = function(req, res) {
     var order    = '1';
 
     if (req.query.page) {
-        page = req.query.page
+        page = req.query.page;
     }
     if (req.query.limit) {
-        limit = req.query.limit
+        limit = req.query.limit;
     }
     if (req.query.order) {
-        order = req.query.order
+        order = req.query.order;
     }
 
     // Set number of docs to skip based off current page
@@ -53,7 +53,7 @@ exports.index = function(req, res) {
         else {
             res.json(400, { message: "Unknown order paramter: " + order + ". Valid values are 1 or -1" });
         }
-    };
+    }
 
     UUID.find(query, '-_id -__v', query_options, function(err, docs) {
         if (err) {
@@ -67,7 +67,7 @@ exports.index = function(req, res) {
 
                 var total_pages = Math.ceil(count / limit);
                 if (total_pages === Infinity) {
-                    total_pages = 1
+                    total_pages = 1;
                 }
 
                 var response = {
@@ -80,7 +80,7 @@ exports.index = function(req, res) {
                             total_count: count
                         }
                     }
-                }
+                };
 
                 res.json(200, response);
             });
@@ -91,7 +91,7 @@ exports.index = function(req, res) {
 exports.show = function(req, res) {
 
     // Build query object
-    var query = new Object;
+    var query = {};
 
     query.id = new RegExp(req.params.uuid.toUpperCase());
 
@@ -105,7 +105,7 @@ exports.show = function(req, res) {
         query.state = new RegExp(req.query.state.toUpperCase());
     }
     if (req.query.last_request) {
-        query.last_request = req.query.last_request
+        query.last_request = req.query.last_request;
     }
 
     // Set some defaults
@@ -114,13 +114,13 @@ exports.show = function(req, res) {
     var order    = '1';
 
     if (req.query.page) {
-        page = req.query.page
+        page = req.query.page;
     }
     if (req.query.limit) {
-        limit = req.query.limit
+        limit = req.query.limit;
     }
     if (req.query.order) {
-        order = req.query.order
+        order = req.query.order;
     }
 
     // Set number of docs to skip based off current page
@@ -141,7 +141,7 @@ exports.show = function(req, res) {
         else {
             res.json(400, { message: "Unknown order paramter: " + order + ". Valid values are 1 or -1" });
         }
-    };
+    }
 
     UUID.find(query, '-_id -__v', query_options, function(err, docs) {
         if (err) {
@@ -156,7 +156,7 @@ exports.show = function(req, res) {
 
                 var total_pages = Math.ceil(count / limit);
                 if (total_pages === Infinity) {
-                    total_pages = 1
+                    total_pages = 1;
                 }
 
                 var response = {
@@ -169,7 +169,7 @@ exports.show = function(req, res) {
                             total_count: count
                         }
                     }
-                }
+                };
 
                 res.json(200, response);
             });
@@ -189,6 +189,7 @@ exports.create = function(req, res) {
     var newUUID  = '';
     var now      = new Date();
 
+    // TODO find a better way to do this. jshint throws error
     do {
         newUUID = genUUID().toUpperCase();
     
@@ -203,7 +204,7 @@ exports.create = function(req, res) {
                     newUUID = false;
                 }
             }
-        })
+        });
     }
     while ( newUUID === false );
 
@@ -242,7 +243,7 @@ exports.create = function(req, res) {
                             }
                         );
                     }
-                })
+                });
             }
             else {
                 if (doc.state === 'CONFIRMED') {
@@ -267,23 +268,23 @@ exports.create = function(req, res) {
                 }
             }
         }
-    })
+    });
 };
 
 exports.update = function(req, res) {
 
     // Create update object and populate as needed
-    var updateObj = new Object;
+    var updateObj = {};
 
     var masterUUID = req.params.uuid.toUpperCase();
     if (req.body.host_uuid) {
-        updateObj['host_uuid'] = req.body.host_uuid.toUpperCase();
+        updateObj.host_uuid = req.body.host_uuid.toUpperCase();
     }
     if (req.body.host_name) {
-        updateObj['host_name'] = req.body.host_name.toLowerCase();
+        updateObj.host_name = req.body.host_name.toLowerCase();
     }
     if (req.body.state) {
-        updateObj['state'] = req.body.state.toUpperCase();
+        updateObj.state = req.body.state.toUpperCase();
     }
 
     if (updateObj.state) {
@@ -367,10 +368,10 @@ exports.createDiff = function(req, res) {
         };
 
     if (req.body.host_name) {
-        updateObj.host_name = req.body.host_name.toLowerCase()
+        updateObj.host_name = req.body.host_name.toLowerCase();
     }
     if (req.body.host_uuid) {
-        updateObj.host_uuid = req.body.host_uuid.toUpperCase()
+        updateObj.host_uuid = req.body.host_uuid.toUpperCase();
     }
 
     if (!updateObj.host_name && !updateObj.host_uuid) {
