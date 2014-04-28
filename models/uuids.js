@@ -21,4 +21,4 @@ var UUIDDiffs = mongoose.model('UUIDDiffs', UUIDDiffsSchema);
 module.exports = {
     UUID: UUID,
     UUIDDiffs: UUIDDiffs
-}
+};
