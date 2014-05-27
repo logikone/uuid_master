@@ -1,24 +1,25 @@
 {
-    "name": "uuid_master",
-    "description": "UUID Generator/Master Server",
-    "author": {
-        "name": "Chris Larsen",
-        "email": "clarsen801@gmail.com"
-    },
-    "version": "0.0.1",
-    "private": true,
-    "dependencies": {
-        "express": "3.4.8",
-        "mongoose": "3.8.7",
-        "config": "0.4.35"
-    },
-    "devDependencies": {
-        "supervisor": "0.5.7",
-        "mocha": "1.17.1",
-        "supertest": "0.9.0",
-        "chai": "1.9.0"
-    },
-    "scripts": {
-        "test": "make test"
-    }
+  "name": "uuid_master",
+  "description": "UUID Generator/Master Server",
+  "author": {
+    "name": "Chris Larsen",
+    "email": "clarsen801@gmail.com"
+  },
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.4.8",
+    "mongoose": "3.8.7",
+    "config": "0.4.35"
+  },
+  "devDependencies": {
+    "supervisor": "0.5.7",
+    "mocha": "1.17.1",
+    "supertest": "0.9.0",
+    "chai": "1.9.0",
+    "jshint": "^2.5.0"
+  },
+  "scripts": {
+    "test": "make test"
+  }
 }
