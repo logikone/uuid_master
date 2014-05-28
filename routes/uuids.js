@@ -55,7 +55,7 @@ exports.index = function(req, res) {
         }
     }
 
-    UUID.find(query, '-_id -__v', query_options, function(err, docs) {
+    UUID.find(query, '-__v', query_options, function(err, docs) {
         if (err) {
             res.json(400, { message: err });
         }
@@ -93,7 +93,7 @@ exports.show = function(req, res) {
     // Build query object
     var query = {};
 
-    query.id = new RegExp(req.params.uuid.toUpperCase());
+    query._id = new RegExp(req.params.uuid.toUpperCase());
 
     if (req.query.host_name) {
         query.host_name = new RegExp(req.query.host_name.toLowerCase());
@@ -143,7 +143,7 @@ exports.show = function(req, res) {
         }
     }
 
-    UUID.find(query, '-_id -__v', query_options, function(err, docs) {
+    UUID.find(query, '-__v', query_options, function(err, docs) {
         if (err) {
             res.json(400, { message: err });
         }
@@ -202,7 +202,6 @@ exports.create = function(req, res) {
                 UUID.create({
                     host_name: hostName,
                     host_uuid: hostUUID,
-                    id: genUUID().toUpperCase(),
                     last_request: now,
                     state: 'PENDING'
                 }, function(err, doc) {
@@ -216,7 +215,7 @@ exports.create = function(req, res) {
                         res.json(200,
                             {
                                 uuid: {
-                                    id: doc.id,
+                                    _id: doc._id,
                                     host_name: doc.host_name,
                                     host_uuid: doc.host_uuid,
                                     state: doc.state,
@@ -229,7 +228,7 @@ exports.create = function(req, res) {
             }
             else {
                 if (doc.state === 'CONFIRMED') {
-                    UUID.findOneAndUpdate({ id: doc.id }, { last_request: now }, { new: true, select: '-_id -__v' }, function(err, doc) {
+                    UUID.findOneAndUpdate({ _id: doc._id }, { last_request: now }, { new: true, select: '-__v' }, function(err, doc) {
                         if (err) {
                             res.json(400, { message: err });
                         }
@@ -239,7 +238,7 @@ exports.create = function(req, res) {
                     });
                 }
                 else {
-                    UUID.findOneAndUpdate({ id: doc.id }, { last_request: now }, { new: true, select: '-_id -__v' }, function(err, doc) {
+                    UUID.findOneAndUpdate({ _id: doc._id }, { last_request: now }, { new: true, select: '-__v' }, function(err, doc) {
                         if (err) {
                             res.json(400, { message: err });
                         }
@@ -277,8 +276,8 @@ exports.update = function(req, res) {
     }
 
     UUID.findOneAndUpdate({
-        id: masterUUID
-    }, updateObj, { new: true, select: '-_id -__v' }, function(err, doc) {
+        _id: masterUUID
+    }, updateObj, { new: true, select: '-__v' }, function(err, doc) {
         if (err) {
             res.json(400, { message: err });
         }
@@ -297,7 +296,7 @@ exports.destroy = function(req, res) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
-    UUID.remove({ id: masterUUID }, function(err, doc) {
+    UUID.remove({ _id: masterUUID }, function(err, doc) {
         if (err) {
             res.json(400, { message: err });
         }
@@ -316,7 +315,7 @@ exports.indexDiff = function(req, res) {
 
     var masterUUID = req.params.uuid.toUpperCase();
 
-    UUID.findOne({ id: masterUUID }, function(err, doc) {
+    UUID.findOne({ _id: masterUUID }, function(err, doc) {
         if (err) {
             res.json(400, err);
         }
@@ -324,7 +323,7 @@ exports.indexDiff = function(req, res) {
             res.json(400, { message: masterUUID + ' does not exist' });
         }
         else {
-            UUIDDiffs.findOne({ uuid_id: masterUUID }, '-_id -__v', function(err, doc) {
+            UUIDDiffs.findOne({ uuid_id: masterUUID }, '-__v', function(err, doc) {
                 if (err) {
                     res.json(400, err);
                 }
@@ -360,7 +359,7 @@ exports.createDiff = function(req, res) {
         res.json(400, { message: 'You must provide either a host_uuid or host_name' });
     }
     else {
-        UUID.findOne({ id: masterUUID }, function(err, doc) {
+        UUID.findOne({ _id: masterUUID }, function(err, doc) {
             if (err) {
                 res.json(400, err);
             }
@@ -377,7 +376,7 @@ exports.createDiff = function(req, res) {
                             host_name: doc.host_name,
                             host_uuid: doc.host_uuid,
                             last_request: doc.last_request,
-                            id: doc.uuid_id
+                            _id: doc.uuid_id
                         });
                     }
                 });
