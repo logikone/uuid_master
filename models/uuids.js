@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-    uuid = require('mongoose-uuid');
+    uuid = require('../lib/mongoose-uuid');
 
 var UUIDDiffsSchema = mongoose.Schema({
     host_name: String,

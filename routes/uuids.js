@@ -1,4 +1,3 @@
-var genUUID = require('../lib/uuid');
 var UUID = require('../models/uuids').UUID;
 var UUIDDiffs = require('../models/uuids').UUIDDiffs;
 
