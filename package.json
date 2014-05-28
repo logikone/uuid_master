@@ -20,6 +20,6 @@
     "jshint": "^2.5.0"
   },
   "scripts": {
-    "test": "make test"
+    "test": "./node_modules/.bin/mocha --reporter spec --timeout 5000"
   }
 }
