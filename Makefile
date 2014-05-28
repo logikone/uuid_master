@@ -6,7 +6,7 @@ build:
 	npm install
 
 test: build jshint
-	@./node_modules/.bin/mocha --reporter spec --timeout 5000
+	npm test
 	rm config/runtime.json
 
 jshint:
