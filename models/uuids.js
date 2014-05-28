@@ -1,4 +1,5 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    uuid = require('mongoose-uuid');
 
 var UUIDDiffsSchema = mongoose.Schema({
     host_name: String,
@@ -10,10 +11,14 @@ var UUIDDiffsSchema = mongoose.Schema({
 var UUIDSchema = mongoose.Schema({
     host_name: String,
     host_uuid: String,
-    id: String,
     state: String,
     last_request: Date
+},
+{
+    _id: false
 });
+
+UUIDSchema.plugin(uuid.plugin);
 
 var UUID = mongoose.model('UUID', UUIDSchema);
 var UUIDDiffs = mongoose.model('UUIDDiffs', UUIDDiffsSchema);
