@@ -1,0 +1,20 @@
+description = "UUID Master"
+
+start on virtual-filesystems
+stop on runlevel [06]
+
+respawn
+
+setuid uuidmaster
+setgid uuidmaster
+
+console log
+script
+
+    # DEFAULTS
+    UM_NICE=19
+
+    [ -f /etc/default/uuid-master ] && . /etc/default/uuid-master
+
+    exec nice -n ${UM_NICE} node /usr/share/uuid-master/app.js ${DAEMON_OPTS}
+end script
