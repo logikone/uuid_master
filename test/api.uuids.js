@@ -10,7 +10,7 @@ var should = require('chai').should(),
     UUIDDiffs = require('../models/uuids').UUIDDiffs,
     app = express();
 
-mongoose.connect('mongodb://localhost/uuid_master_unit_test');
+mongoose.connect('mongodb://' + config.mongodb.host + '/uuid_master_unit_test');
 
 app.use(express.json({ strict: true }));
 app.use(middleware.jsonParseFailure);

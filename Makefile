@@ -12,6 +12,10 @@ test: build jshint
 jshint:
 	@./node_modules/.bin/jshint app.js lib/ routes/ test/ models/
 
+docker/test: build jshint
+	@./util/docker.sh npm test
+	rm -f config/runtime.json
+
 install:
 	npm install --production
 	npm prune --production

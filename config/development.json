@@ -1,0 +1,10 @@
+{
+    "mongodb": {
+        "host": "db"
+    },
+    "logging": {
+        "file": {
+            "enabled": false
+        }
+    }
+}
