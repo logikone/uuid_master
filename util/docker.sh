@@ -45,20 +45,6 @@ if [[ $0 =~ "docker_package" ]]; then
             ;;
     esac
 
-    #FPM_CMD='fpm -s dir -t deb -n uuid-master -v '$VERSION' \
-    #    -p uuid-master-VERSION_ARCH.deb \
-    #    -d "nodejs (>=0.10.24)" \
-    #    -d "nodejs-legacy" \
-    #    --license "Apache 2.0" \
-    #    --deb-user uuidmaster \
-    #    --deb-group uuidmaster \
-    #    --before-install pkg/'$OS'/before-install.sh \
-    #    --before-remove pkg/'$OS'/before-remove.sh \
-    #    --after-install pkg/'$OS'/after-install.sh \
-    #    --config-files /etc/default/uuid-master \
-    #    --config-files /etc/logrotate.d/uuid-master \
-    #    -f -C '$DESTDIR' .'
-
     FPM_CMD='fpm -s dir -t deb -n uuid-master -v '$VERSION'
         -p uuid-master-VERSION_ARCH.deb
         -d "nodejs (>=0.10.24)"
@@ -73,7 +59,7 @@ if [[ $0 =~ "docker_package" ]]; then
         --config-files /etc/logrotate.d/uuid-master
         -f -C '$DESTDIR' .'
 
-    docker run -i -t --rm -v $PWD:/src -w /src dockerfile/fpm $FPM_CMD
+    echo $FPM_CMD | docker run -i --rm -v $PWD:/src -w /src dockerfile/fpm "$@"
 fi
 
 if [[ $0 =~ "docker.sh" ]]; then
