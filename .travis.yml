@@ -5,3 +5,5 @@ services:
     - mongodb
 before_script:
     - sleep 15
+env:
+    - NODE_ENV=travis
