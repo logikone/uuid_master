@@ -6,3 +6,4 @@ log/
 ssl/
 src/
 *.swp
+*.deb
