@@ -2,6 +2,16 @@
 
 if [[ $0 =~ "docker_package" ]]; then
 
+    [ ! -f .VERSION.mk ] && make -C .VERSION.mk
+
+    . .VERSION.mk
+
+    MY_UUID=$(getent passwd chrisl | awk -F: '{print $3}')
+    DEB_REVISION="${REVISION}"
+    RPM_REVISION="${REVISION}"
+    URL="http://github.com/logikone/uuid-master"
+    DESCRIPTION="UUID Master is a simple API to generate uuids for hosts to be tracked across multiple systems"
+
     if [[ ! $1 ]]; then
         OS="ubuntu"
     else
@@ -9,7 +19,6 @@ if [[ $0 =~ "docker_package" ]]; then
     fi
 
     DESTDIR=src
-    VERSION=`npm version | grep uuid_master | awk '{print $2}' | sed s/\'//g`
 
     case $OS in
         ubuntu|debian)
@@ -45,21 +54,33 @@ if [[ $0 =~ "docker_package" ]]; then
             ;;
     esac
 
-    FPM_CMD='fpm -s dir -t deb -n uuid-master -v '$VERSION'
-        -p uuid-master-VERSION_ARCH.deb
-        -d "nodejs (>=0.10.24)"
-        -d "nodejs-legacy"
-        --license "Apache 2.0"
-        --deb-user uuidmaster
-        --deb-group uuidmaster
-        --before-install pkg/'$OS'/before-install.sh
-        --before-remove pkg/'$OS'/before-remove.sh
-        --after-install pkg/'$OS'/after-install.sh
-        --config-files /etc/default/uuid-master
-        --config-files /etc/logrotate.d/uuid-master
-        -f -C '$DESTDIR' .'
+    case $OS in
+        ubuntu|debian)
+            if ! echo $RELEASE | grep -q '\.(dev|rc.*)'; then
+                RELEASE="$(echo $RELEASE | sed 's/\.\(dev\|rc.*\)/~\1/')"
+            fi
 
-    echo $FPM_CMD | docker run -i --rm -v $PWD:/src -w /src dockerfile/fpm "$@"
+            FPM_CMD='fpm -s dir -t deb -n uuid-master -v '$RELEASE'
+                -a all --iteration "1-'$DEB_REVISION'"
+                -p uuid-master-VERSION_ARCH.deb
+                -d "nodejs (>=0.10.24)"
+                -d "nodejs-legacy"
+                --url "'$URL'"
+                --description "'$DESCRIPTION'"
+                --license "Apache 2.0"
+                --maintainer "Chris Larsen"
+                --deb-user uuidmaster
+                --deb-group uuidmaster
+                --before-install pkg/'$OS'/before-install.sh
+                --before-remove pkg/'$OS'/before-remove.sh
+                --after-install pkg/'$OS'/after-install.sh
+                --config-files /etc/default/uuid-master
+                --config-files /etc/logrotate.d/uuid-master
+                -f -C '$DESTDIR' .'
+        ;;
+    esac
+
+    echo $FPM_CMD | docker run -i -u $MY_UUID --rm -v $PWD:/src -w /src dockerfile/fpm "$@"
 fi
 
 if [[ $0 =~ "docker.sh" ]]; then

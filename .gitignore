@@ -1,4 +1,5 @@
 node_modules/
+.VERSION.mk
 config/runtime.json
 log/
 ssl/
