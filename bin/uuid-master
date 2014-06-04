@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+var daemon = require('daemon');
+
+daemon.daemon('/usr/share/uuid-master/app.js');
