@@ -15,7 +15,7 @@ MY_UUID=$(getent passwd chrisl | awk -F: '{print $3}')
 DEB_REVISION="${REVISION}"
 RPM_REVISION="${REVISION}"
 URL="http://github.com/logikone/uuid-master"
-DESCRIPTION="UUID Master is a simple API to generate uuids for hosts to be tracked across multiple systems"
+DESCRIPTION="UUID Master is an API to generate and store uuids for hosts"
 
 # Functions
 function usage {
@@ -44,6 +44,9 @@ while [ "$1" != "" ]; do
         --docker )
             DOCKER=1
             ;;
+        --clean )
+            CLEAN=1
+            ;;
         * )
             usage
             exit 1;
@@ -60,9 +63,14 @@ if [ $DOCKER = 0 ]; then
     check_deps
 fi
 
+if [ $CLEAN = 1 ]; then
+    make clean
+fi
+
 # Main 
 case $DISTRIBUTION in
-    ubuntu|debian)
+
+    ubuntu|debian|centos|redhat)
         BUILD_CMD="
             npm install --production;
             npm prune --production;
@@ -73,35 +81,60 @@ case $DISTRIBUTION in
             install -d $DESTDIR/var/log/uuid-master;
             install -d $DESTDIR/var/tmp;
             install -d $DESTDIR/etc/uuid-master;
-            install -d $DESTDIR/etc/default;
-            install -d $DESTDIR/etc/init;
-            install -d $DESTDIR/etc/init.d;
             install -d $DESTDIR/etc/logrotate.d;
-            install app.js $DESTDIR/usr/share/uuid-master;
-            install config/default.json $DESTDIR/var/tmp;
+            install -m0644 app.js $DESTDIR/usr/share/uuid-master;
+            install -m0644 config/default.json $DESTDIR/var/tmp;
+            install -m0644 pkg/logrotate.conf $DESTDIR/etc/logrotate.d/uuid-master;
             cp -r node_modules/* $DESTDIR/usr/share/uuid-master/node_modules;
             cp -r lib/* $DESTDIR/usr/share/uuid-master/lib;
             cp -r models/* $DESTDIR/usr/share/uuid-master/models;
             cp -r routes/* $DESTDIR/usr/share/uuid-master/routes;
             find $DESTDIR/usr/share/uuid-master -type f -exec chmod 0644 \{\} \;;
             find $DESTDIR/usr/share/uuid-master -type d -exec chmod 0755 \{\} \;;
-            install -m644 pkg/uuid-master.default $DESTDIR/etc/default/uuid-master;
-            install -m644 pkg/logrotate.conf $DESTDIR/etc/logrotate.d/uuid-master;
-            install -m755 pkg/uuid-master.sysv $DESTDIR/etc/init.d/uuid-master;
-            install -m755 pkg/uuid-master.upstart.ubuntu $DESTDIR/etc/init/uuid-master.conf;"
-
+        "
         if [ $DOCKER = 1 ]; then
-            BUILD_CMD="$BUILD_CMD chown -R $MY_UUID node_modules build;"
+            BUILD_CMD="$BUILD_CMD chown -R $MY_UUID node_modules"
             echo $BUILD_CMD | docker run -i --rm -v $PWD:/src -w /src dockerfile/nodejs
         else
             eval $BUILD_CMD
         fi
         ;;
+esac
+
+case $DISTRIBUTION in
+    ubuntu|debian)
+        BUILD_CMD="
+            install -d $DESTDIR/etc/default;
+            install -d $DESTDIR/etc/init;
+            install -d $DESTDIR/etc/init.d;
+            install -m0644 pkg/uuid-master.default $DESTDIR/etc/default/uuid-master;
+            install -m0755 pkg/uuid-master.sysv $DESTDIR/etc/init.d/uuid-master;
+            install -m0644 pkg/uuid-master.upstart.ubuntu $DESTDIR/etc/init/uuid-master.conf;
+        "
+        ;;
+    centos|redhat)
+        BUILD_CMD="
+            install -d $DESTDIR/etc/sysconfig;
+            install -d $DESTDIR/etc/init.d;
+            install -m0644 pkg/uuid-master.default $DESTDIR/etc/sysconfig/uuid-master;
+            install -m0755 pkg/uuid-master.sysv $DESTDIR/etc/init.d/uuid-master;
+        "
+        ;;
+
     *)
         echo "Unknown OS: $DISTRIBUTION"
         exit 1
         ;;
 esac
+
+# Run BUILD_CMD
+if [ $DOCKER = 1 ]; then
+    BUILD_CMD="$BUILD_CMD chown -R $MY_UUID build;"
+    echo $BUILD_CMD | docker run -i --rm -v $PWD:/src -w /src dockerfile/nodejs
+else
+    eval $BUILD_CMD
+fi
+
 
 case $DISTRIBUTION in
     ubuntu|debian)
@@ -133,6 +166,10 @@ if [ $DOCKER = 1 ]; then
     echo $FPM_CMD | docker run -i -u $MY_UUID --rm -v $PWD:/src -w /src dockerfile/fpm "$@"
 else
     $FPM_CMD
+fi
+
+if [ $CLEAN = 1 ]; then
+    make clean
 fi
 
 # vim: set ts=4 sw=4 et;

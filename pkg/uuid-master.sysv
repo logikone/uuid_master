@@ -1,27 +1,27 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          uuid-master-api
+# Provides:          uuid-master
 # Required-Start:    $network $local_fs
 # Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: <Enter a short description of the sortware>
-# Description:       <Enter a long description of the software>
-#                    <...>
-#                    <...>
+# Short-Description: UUID Master
+# Description:       UUID Master is an API for generating UUID's for hosts
+#                    so that they can be tracked across multiple disparate
+#                    systems.
 ### END INIT INFO
 
 # Author: Chris Larsen <clarsen801@gmail.com>
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC=uuid-master-api             # Introduce a short description here
-NAME=uuid-master-api             # Introduce the short server's name here
-DAEMON=/usr/sbin/uuid-master-api # Introduce the server's location here
-DAEMON_ARGS=""             # Arguments to run the daemon with
+DESC="UUID Master"
+NAME=uuid-master
+DAEMON=/usr/bin/nodejs
+DAEMON_ARGS="/usr/share/uuid-master/app.js"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-NODE_CONFIG_DIR=/etc/uuid-master
+export NODE_CONFIG_DIR=/etc/uuid-master
 
 # Exit if the package is not installed
 [ -x $DAEMON ] || exit 0
@@ -146,7 +146,6 @@ case "$1" in
 	esac
 	;;
   *)
-	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
 	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
 	exit 3
 	;;

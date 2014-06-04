@@ -1,12 +1,5 @@
-# Defaults for uuid-master-api initscript
-# sourced by /etc/init.d/uuid-master-api
-# installed at /etc/default/uuid-master-api by the maintainer scripts
+# Defaults for uuid-master
 
-#
-# This is a POSIX shell fragment
-#
-
+# Node environment, this dictates which config to load
+# /etc/uuid-master/$NODE_ENV.json
 NODE_ENV=production
-
-# Additional options that are passed to the Daemon.
-DAEMON_OPTS=""
