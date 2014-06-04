@@ -6,5 +6,9 @@
         "file": {
             "enabled": false
         }
+    },
+    "server": {
+        "uid": "root",
+        "gid": "root"
     }
 }
