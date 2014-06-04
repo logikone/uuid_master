@@ -69,6 +69,6 @@ endif
 
 clean:
 	rm -rf ./node_modules
-	rm -rf ./src
+	rm -rf ./build
 
 .PHONY: build test jshint install clean version
