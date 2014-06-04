@@ -119,7 +119,10 @@ else {
     app.delete('/api/v1/uuids/:uuid/diff', uuids.destroyDiff);
 
     if (config.server.http_enabled) {
-        var http_server = http.createServer(app).listen(config.server.http_port);
+        var http_server = http.createServer(app).listen(config.server.http_port, function() {
+            process.setgid(config.server.gid);
+            process.setuid(config.server.uid);
+        });
 
         http_server.on('error', function(err) {
             console.log(err);
@@ -131,7 +134,10 @@ else {
             cert: fs.readFileSync(config.server.ssl_certificate)
         };
 
-        var https_server = https.createServer(https_options, app).listen(config.server.https_port);
+        var https_server = https.createServer(https_options, app).listen(config.server.https_port, function() {
+            process.setgid(config.server.gid);
+            process.setuid(config.server.uid);
+        });
 
         https_server.on('error', function(err) {
             console.log(err);

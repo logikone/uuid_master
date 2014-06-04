@@ -7,7 +7,7 @@
         "file": {
             "format": ":remote-addr - - [:date] \":method :url HTTP/:http-version\" :status :res[content-length] :response-time \":referrer\" \":user-agent\"",
             "enabled": true,
-            "path": "./log/access.log"
+            "path": "/var/log/uuid-master/access.log"
         },
         "elasticsearch": {
             "enabled": false,
@@ -17,6 +17,8 @@
         }
     },
     "server": {
+        "uid": "uuidmaster",
+        "gid": "uuidmaster",
         "http_enabled": true,
         "https_enabled": false,
         "http_port": "8080",
