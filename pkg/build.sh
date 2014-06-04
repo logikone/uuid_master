@@ -143,7 +143,7 @@ case $DISTRIBUTION in
         fi
 
         FPM_CMD='fpm -s dir -t deb -n uuid-master -v '$RELEASE'
-            -a all --iteration "1-'$DEB_REVISION'"
+            -a all --iteration "'$DEB_REVISION'"
             -p uuid-master-VERSION_ARCH.deb
             -d "nodejs (>=0.10.24)"
             -d "nodejs-legacy"
