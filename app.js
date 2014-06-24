@@ -144,3 +144,24 @@ else {
         });
     }
 }
+
+function kill_all_workers(signal) {
+    var uniqueID,
+        worker;
+
+    for (uniqueID in cluster.workers) {
+        if (cluster.workers.hasOwnProperty(uniqueID)) {
+            worker = cluster.workers[uniqueID];
+            worker.removeAllListeners();
+            worker.process.kill(signal);
+        }
+    }
+}
+
+process.on('SIGHUP', function() {
+    kill_all_workers('SIGTERM');
+});
+
+process.on('SIGTERM', function() {
+    process.exit();
+});
