@@ -1,17 +1,6 @@
 var should = require('chai').should(),
     request = require('supertest'),
-    express = require('express'),
-    uuids = require('../routes/uuids'),
-    middleware = require('../lib/middleware'),
-    app = express();
-
-
-//app.use(middleware.checkHeaders);
-app.use(express.json({ strict: true }));
-app.use(middleware.jsonParseFailure);
-
-// HTTP Routes
-app.get('/api/v1/uuids/:uuid', uuids.show);
+    app = require('../app');
 
 describe('General App Functions', function() {
 

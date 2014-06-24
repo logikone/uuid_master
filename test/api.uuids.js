@@ -1,30 +1,10 @@
 var should = require('chai').should(),
     request = require('supertest'),
     config = require('config'),
-    express = require('express'),
-    mongoose = require('mongoose'),
-    uuids = require('../routes/uuids'),
-    middleware = require('../lib/middleware'),
     fixtures = require('./fixtures'),
     UUID = require('../models/uuids').UUID,
     UUIDDiffs = require('../models/uuids').UUIDDiffs,
-    app = express();
-
-mongoose.connect('mongodb://' + config.mongodb.host + '/uuid_master_unit_test');
-
-app.use(express.json({ strict: true }));
-app.use(middleware.jsonParseFailure);
-
-// HTTP Routes
-app.get('/api/v1/uuids', uuids.index);
-app.get('/api/v1/uuids/:uuid', uuids.show);
-app.post('/api/v1/uuids', uuids.create);
-app.put('/api/v1/uuids/:uuid', uuids.update);
-app.delete('/api/v1/uuids/:uuid', uuids.destroy);
-
-app.get('/api/v1/uuids/:uuid/diff', uuids.indexDiff);
-app.post('/api/v1/uuids/:uuid/diff', uuids.createDiff);
-app.delete('/api/v1/uuids/:uuid/diff', uuids.destroyDiff);
+    app = require('../app');
 
 // TESTS
 describe('UUID Functions', function() {
