@@ -1,5 +1,70 @@
 #!/usr/bin/env node
 
-var daemon = require('daemon');
+var config = require('config'),
+    cluster = require('cluster'),
+    http = require('http'),
+    https = require('https'),
+    app = require('../app');
 
-daemon.daemon('/usr/share/uuid-master/app.js');
+if (cluster.isMaster) {
+    var cpuCount = require('os').cpus().length;
+
+    for (var i = 0; i < cpuCount; i++) {
+        cluster.fork();
+    }
+
+    cluster.on('exit', function(worker) {
+
+        console.log('Worker ' + worker.id + ' died.');
+        cluster.fork();
+    });
+}
+else {
+
+    if (config.server.http_enabled) {
+        var http_server = http.createServer(app).listen(config.server.http_port, function() {
+            process.setgid(config.server.gid);
+            process.setuid(config.server.uid);
+        });
+
+        http_server.on('error', function(err) {
+            console.log(err);
+        });
+    }
+    if (config.server.https_enabled) {
+        var https_options = {
+            key: fs.readFileSync(config.server.ssl_key),
+            cert: fs.readFileSync(config.server.ssl_certificate)
+        };
+
+        var https_server = https.createServer(https_options, app).listen(config.server.https_port, function() {
+            process.setgid(config.server.gid);
+            process.setuid(config.server.uid);
+        });
+
+        https_server.on('error', function(err) {
+            console.log(err);
+        });
+    }
+}
+
+function kill_all_workers(signal) {
+    var uniqueID,
+        worker;
+
+    for (uniqueID in cluster.workers) {
+        if (cluster.workers.hasOwnProperty(uniqueID)) {
+            worker = cluster.workers[uniqueID];
+            worker.removeAllListeners();
+            worker.process.kill(signal);
+        }
+    }
+}
+
+process.on('SIGHUP', function() {
+    kill_all_workers('SIGTERM');
+});
+
+process.on('SIGTERM', function() {
+    process.exit();
+});
